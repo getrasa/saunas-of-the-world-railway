@@ -28,7 +28,7 @@ export function HeaterCard({ product, onAddToCart }: HeaterCardProps) {
           alt={product.name}
           width={240}
           height={280}
-          className="h-full w-auto object-contain"
+          className="h-full w-auto object-cover"
         />
       </div>
 
