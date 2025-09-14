@@ -1,25 +1,29 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import Image from "next/image";
-import { ChevronDown } from "lucide-react";
+import { useState } from "react"
+import Image from "next/image"
+import { ChevronDown } from "lucide-react"
 
 interface ProductGalleryProps {
-  images: string[];
-  productName: string;
-  selectedOptions?: string;
+  images: string[]
+  productName: string
+  selectedOptions?: string
 }
 
-export function ProductGallery({ images, productName, selectedOptions }: ProductGalleryProps) {
-  const [selectedImage, setSelectedImage] = useState(0);
-  const [showAllThumbnails, setShowAllThumbnails] = useState(false);
+export function ProductGallery({
+  images,
+  productName,
+  selectedOptions,
+}: ProductGalleryProps) {
+  const [selectedImage, setSelectedImage] = useState(0)
+  const [showAllThumbnails, setShowAllThumbnails] = useState(false)
 
-  const visibleThumbnails = showAllThumbnails ? images : images.slice(0, 4);
+  const visibleThumbnails = showAllThumbnails ? images : images.slice(0, 4)
 
   return (
     <div className="flex gap-0">
-      <div className="relative w-[154px]">
-        <div className="flex flex-col gap-2.5 py-2">
+      <div className="relative">
+        <div className="flex flex-col gap-2.5 py-2 pr-6">
           {visibleThumbnails.map((image, index) => (
             <button
               key={index}
@@ -32,7 +36,7 @@ export function ProductGallery({ images, productName, selectedOptions }: Product
                 src={image}
                 alt={`${productName} view ${index + 1}`}
                 fill
-                className="object-contain p-2"
+                className="object-contain"
               />
             </button>
           ))}
@@ -52,12 +56,12 @@ export function ProductGallery({ images, productName, selectedOptions }: Product
       </div>
 
       <div className="relative flex-1">
-        <div className="relative h-[531px] w-full bg-gray-50">
+        <div className="relative h-[531px] w-full overflow-hidden bg-gray-50">
           <Image
             src={images[selectedImage] ?? images[0] ?? ""}
             alt={productName}
             fill
-            className="object-contain p-8"
+            className="object-cover"
           />
           {selectedOptions && (
             <p className="absolute bottom-4 left-1/2 -translate-x-1/2 text-xs text-gray-600">
@@ -67,5 +71,5 @@ export function ProductGallery({ images, productName, selectedOptions }: Product
         </div>
       </div>
     </div>
-  );
+  )
 }

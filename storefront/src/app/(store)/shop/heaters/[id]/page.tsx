@@ -1,16 +1,7 @@
-"use client";
-
-import { useState } from "react";
-import Link from "next/link";
-import { ChevronLeft, ShoppingCart } from "lucide-react";
-import { ProductGallery } from "~/components/store/product-gallery";
-import { ProductOptions } from "~/components/store/product-options";
-import { QuantitySelector } from "~/components/store/quantity-selector";
-import { ProductInfo } from "~/components/store/product-info";
-import { HeaterCard, type HeaterProduct } from "~/components/store/heater-card";
-import { StockIndicator } from "~/components/store/stock-indicator";
-import { useCart } from "~/contexts/cart-context";
-import { imageUrls } from "~/lib/imageUrls";
+import { sdk } from "~/lib/config"
+import { StoreProduct, HttpTypes } from "@medusajs/types"
+import { ProductClient } from "./product.client"
+import { imageUrls } from "~/lib/imageUrls"
 
 const mockProduct = {
   id: "1",
@@ -69,105 +60,30 @@ const mockProduct = {
   },
 };
 
-const relatedProducts: HeaterProduct[] = [
-  {
-    id: "2",
-    name: "EOS Bi-O Mat W",
-    description: "High-quality stainless steel heater with integrated water tank for Finnish and Bio sauna operation.",
-    price: 450,
-    stockStatus: "in-stock",
-    image: imageUrls.heaterProduct2,
-    type: "Wall-Mounting",
-    saunaSize: "8 m³",
-    power: "6.0 kW",
-  },
-  {
-    id: "3",
-    name: "EOS Cubo",
-    description: "Compact cubic design with excellent heat distribution. Premium quality heating elements.",
-    price: 380,
-    stockStatus: "pre-order",
-    image: imageUrls.heaterProduct3,
-    type: "Floor-standing",
-    saunaSize: "6 m³",
-    power: "4.5 kW",
-  },
-  {
-    id: "4",
-    name: "EOS 34.A",
-    description: "Classic sauna heater with robust construction. Ideal for commercial and residential use.",
-    price: 680,
-    stockStatus: "in-stock",
-    image: imageUrls.heaterProduct4,
-    type: "Floor-standing",
-    saunaSize: "12 m³",
-    power: "9.0 kW",
-  },
-  {
-    id: "5",
-    name: "EOS Germanius",
-    description: "Premium tower heater with elegant design. Features advanced air circulation system.",
-    price: 920,
-    stockStatus: "in-stock",
-    image: imageUrls.heaterProduct1,
-    type: "Floor-standing",
-    saunaSize: "16 m³",
-    power: "12.0 kW",
-  },
-  {
-    id: "6",
-    name: "EOS Herkules S60",
-    description: "Heavy-duty commercial heater with superior performance. Built for continuous operation.",
-    price: 1850,
-    stockStatus: "out-of-stock",
-    image: imageUrls.heaterProduct2,
-    type: "Floor-standing",
-    saunaSize: "60 m³",
-    power: "30.0 kW",
-  },
-  {
-    id: "7",
-    name: "EOS Saunadome II",
-    description: "Innovative dome design for maximum stone capacity. Creates authentic löyly steam.",
-    price: 540,
-    stockStatus: "in-stock",
-    image: imageUrls.heaterProduct3,
-    type: "Wall-Mounting",
-    saunaSize: "10 m³",
-    power: "7.5 kW",
-  },
-];
+export default async function ProductDetailsPage({ params }: { params: { id: string } }) {
+  // Resolve region for calculated prices (using AU as in list page)
+  const countryCode = "au"
+  let regionId: string | undefined
+  try {
+    const { regions } = await sdk.store.region.list({})
+    const match = regions?.find((r: any) =>
+      (r.countries || []).some((c: any) => (c.iso_2 || "").toLowerCase() === countryCode)
+    )
+    regionId = match?.id
+  } catch {}
 
-export default function ProductDetailsPage({ params }: { params: { id: string } }) {
-  const [quantity, setQuantity] = useState(1);
-  const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
-  const { addToCart } = useCart();
-
-  const handleAddToCart = () => {
-    const selectedDesign = mockProduct.optionGroups[0]?.options.find(
-      (opt) => opt.id === selectedOptions["Choose exterior designs"]
-    )?.label;
-    const selectedModel = mockProduct.optionGroups[1]?.options.find(
-      (opt) => opt.id === selectedOptions["Choose Model"]
-    )?.label;
-    const selectedPower = mockProduct.optionGroups[2]?.options.find(
-      (opt) => opt.id === selectedOptions["Choose Power"]
-    )?.label;
-
-    addToCart({
-      id: mockProduct.id,
-      name: mockProduct.fullName,
-      description: mockProduct.description,
-      price: mockProduct.price,
-      quantity,
-      image: mockProduct.images[0] ?? "",
-      selectedOptions: {
-        design: selectedDesign,
-        model: selectedModel,
-        power: selectedPower,
-      },
-    });
-  };
+  const { products } = await sdk.store.product.list(
+    { id: [params.id], region_id: regionId, fields: "*variants.calculated_price" },
+    { next: { tags: ["products"] } as any }
+  )
+  const p: StoreProduct | undefined = products?.[0]
+  const images: string[] = p
+    ? [p.thumbnail, ...(p.images?.map((img: any) => img.url) || [])].filter(Boolean)
+    : []
+  const variantPrices: number[] = (p?.variants || [])
+    .map((v: any) => v?.calculated_price?.calculated_amount as number | undefined)
+    .filter((n: number | undefined): n is number => typeof n === "number")
+  const price = variantPrices.length ? Math.min(...variantPrices) : null
 
   const productInfoSections = [
     {
@@ -211,123 +127,14 @@ export default function ProductDetailsPage({ params }: { params: { id: string } 
     },
   ];
 
-  const getSelectedOptionsString = () => {
-    const selections = [];
-    if (selectedOptions["Choose exterior designs"]) {
-      const option = mockProduct.optionGroups[0]?.options.find(
-        (opt) => opt.id === selectedOptions["Choose exterior designs"]
-      );
-      if (option) selections.push(option.label);
-    }
-    if (selectedOptions["Choose Model"]) {
-      const option = mockProduct.optionGroups[1]?.options.find(
-        (opt) => opt.id === selectedOptions["Choose Model"]
-      );
-      if (option) selections.push(option.label);
-    }
-    if (selectedOptions["Choose Power"]) {
-      const option = mockProduct.optionGroups[2]?.options.find(
-        (opt) => opt.id === selectedOptions["Choose Power"]
-      );
-      if (option) selections.push(option.label);
-    }
-    return selections.join(", ");
-  };
 
   return (
-    <div className="min-h-screen bg-white">
-      <div className="mx-auto max-w-[1512px] px-6 py-8">
-        <nav className="mb-6 flex items-center gap-2 text-xs text-gray-500">
-          <Link href="/shop/heaters" className="hover:text-gray-700">
-            Products
-          </Link>
-          <span>&gt;</span>
-          <Link href="/shop/heaters" className="hover:text-gray-700">
-            Sauna Heaters
-          </Link>
-          <span>&gt;</span>
-          <span className="font-medium text-black">{mockProduct.name}</span>
-        </nav>
-
-        <Link
-          href="/shop/heaters"
-          className="mb-8 inline-flex items-center gap-1 rounded-full border border-black px-3 py-1 text-xs font-semibold transition-colors hover:bg-gray-100"
-        >
-          <ChevronLeft className="h-3 w-3" />
-          Back
-        </Link>
-
-        <div className="grid gap-12 lg:grid-cols-[737px_1fr]">
-          <ProductGallery
-            images={mockProduct.images}
-            productName={mockProduct.name}
-            selectedOptions={getSelectedOptionsString()}
-          />
-
-          <div className="flex flex-col gap-8">
-            <div>
-              <h1 className="mb-6 text-3xl font-semibold">
-                <span className="text-[#C5AF71]">{mockProduct.name}</span>
-                <span className="text-black"> - Sauna heater for small sauna cabins</span>
-              </h1>
-              <p className="mb-4 text-gray-600">{mockProduct.description}</p>
-              <p className="mb-6 text-black">Include: {mockProduct.includes}</p>
-              
-              <div className="flex items-center gap-4">
-                <span className="text-3xl font-semibold">${mockProduct.price}</span>
-                <StockIndicator status={mockProduct.stockStatus} />
-              </div>
-            </div>
-
-            <div className="h-px bg-gray-200" />
-
-            <ProductOptions
-              optionGroups={mockProduct.optionGroups}
-              onSelectionChange={setSelectedOptions}
-            />
-
-            <div className="h-px bg-gray-200" />
-
-            <div>
-              <h3 className="mb-2 text-base font-medium">Amount</h3>
-              <QuantitySelector
-                quantity={quantity}
-                onQuantityChange={setQuantity}
-              />
-            </div>
-
-            <div className="h-px bg-gray-200" />
-
-            <button
-              onClick={handleAddToCart}
-              className="flex h-12 w-full items-center justify-center gap-3 rounded-3xl bg-black text-white transition-colors hover:bg-gray-800"
-            >
-              <ShoppingCart className="h-5 w-5" />
-              <span className="font-semibold">Add to Cart</span>
-            </button>
-          </div>
-        </div>
-
-        <div className="mt-16 max-w-[680px]">
-          <ProductInfo sections={productInfoSections} />
-        </div>
-      </div>
-
-      <div className="bg-neutral-100 px-6 py-16">
-        <div className="mx-auto max-w-[1512px]">
-          <h2 className="mb-12 text-3xl font-semibold">You may also interested in</h2>
-          
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {relatedProducts.slice(0, 7).map((product) => (
-              <HeaterCard
-                key={product.id}
-                product={product}
-                onAddToCart={(product) => console.log("Add to cart:", product)}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+    <ProductClient
+      title={p?.title ?? null}
+      subtitle={p?.subtitle ? p?.subtitle :  null}
+      description={p?.description ?? null}
+      images={images.length ? images : null}
+      price={price != null ? Math.round(price) : null}
+    />
+  )
 }
