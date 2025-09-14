@@ -22,13 +22,12 @@ interface HeaterCardProps {
 export function HeaterCard({ product, onAddToCart }: HeaterCardProps) {
   return (
     <div className="flex flex-col gap-2.5 rounded-2xl bg-white p-4 shadow-sm transition-shadow hover:shadow-md md:p-6">
-      <div className="relative flex h-72 w-full items-center justify-center rounded-lg bg-gray-50 p-8">
+      <div className="relative h-72 w-full overflow-hidden rounded-lg bg-gray-50">
         <Image
           src={product.image}
           alt={product.name}
-          width={240}
-          height={280}
-          className="h-full w-auto object-cover"
+          fill
+          className="object-cover object-center"
         />
       </div>
 

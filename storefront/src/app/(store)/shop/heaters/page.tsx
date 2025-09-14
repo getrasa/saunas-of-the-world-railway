@@ -1,18 +1,19 @@
-import { getProductsList } from "@lib/data/products";
-import { getRegion } from "@lib/data/regions";
-import { HeatersClient } from "./heaters.client";
-import type { HeaterProduct } from "~/components/store/heater-card";
-import { imageUrls } from "../../../../lib/imageUrls";
+import { getProductsList } from "@lib/data/products"
+import { getRegion } from "@lib/data/regions"
+import { HeatersClient } from "./heaters.client"
+import type { HeaterProduct } from "~/components/store/heater-card"
+import { imageUrls } from "../../../../lib/imageUrls"
 
 export default async function HeatersPage() {
   // Pick a country for now (no country prefix in this route). You can
   // later rewrite this route under /[countryCode]/... to use params.
-  const countryCode = "au";
+  const countryCode = "au"
   const mockProducts: HeaterProduct[] = [
     {
       id: "1",
       name: "EOS Picco W",
-      description: "Inner and outer shell of chrome steel. 3 exterior designs: polished chrome steel, matt black or anthracite pearl effect finish. Rock store fits approx. 10 kg stones.",
+      description:
+        "Inner and outer shell of chrome steel. 3 exterior designs: polished chrome steel, matt black or anthracite pearl effect finish. Rock store fits approx. 10 kg stones.",
       price: 240,
       stockStatus: "in-stock",
       image: imageUrls.heaterProduct1,
@@ -23,7 +24,8 @@ export default async function HeatersPage() {
     {
       id: "2",
       name: "EOS Bi-O Mat W",
-      description: "High-quality stainless steel heater with integrated water tank for Finnish and Bio sauna operation. Available in multiple power configurations.",
+      description:
+        "High-quality stainless steel heater with integrated water tank for Finnish and Bio sauna operation. Available in multiple power configurations.",
       price: 450,
       stockStatus: "in-stock",
       image: imageUrls.heaterProduct2,
@@ -34,7 +36,8 @@ export default async function HeatersPage() {
     {
       id: "3",
       name: "EOS Cubo",
-      description: "Compact cubic design with excellent heat distribution. Premium quality heating elements ensure long service life.",
+      description:
+        "Compact cubic design with excellent heat distribution. Premium quality heating elements ensure long service life.",
       price: 380,
       stockStatus: "pre-order",
       image: imageUrls.heaterProduct3,
@@ -45,7 +48,8 @@ export default async function HeatersPage() {
     {
       id: "4",
       name: "EOS 34.A",
-      description: "Classic sauna heater with robust construction. Ideal for commercial and residential use with excellent heat output.",
+      description:
+        "Classic sauna heater with robust construction. Ideal for commercial and residential use with excellent heat output.",
       price: 680,
       stockStatus: "in-stock",
       image: imageUrls.heaterProduct4,
@@ -56,7 +60,8 @@ export default async function HeatersPage() {
     {
       id: "5",
       name: "EOS Germanius",
-      description: "Premium tower heater with elegant design. Features advanced air circulation system for optimal sauna climate.",
+      description:
+        "Premium tower heater with elegant design. Features advanced air circulation system for optimal sauna climate.",
       price: 920,
       stockStatus: "in-stock",
       image: imageUrls.heaterProduct1,
@@ -67,7 +72,8 @@ export default async function HeatersPage() {
     {
       id: "6",
       name: "EOS Herkules S60",
-      description: "Heavy-duty commercial heater with superior performance. Built for continuous operation in professional environments.",
+      description:
+        "Heavy-duty commercial heater with superior performance. Built for continuous operation in professional environments.",
       price: 1850,
       stockStatus: "out-of-stock",
       image: imageUrls.heaterProduct2,
@@ -78,7 +84,8 @@ export default async function HeatersPage() {
     {
       id: "7",
       name: "EOS Saunadome II",
-      description: "Innovative dome design for maximum stone capacity. Creates authentic löyly steam for traditional sauna experience.",
+      description:
+        "Innovative dome design for maximum stone capacity. Creates authentic löyly steam for traditional sauna experience.",
       price: 540,
       stockStatus: "in-stock",
       image: imageUrls.heaterProduct3,
@@ -89,7 +96,8 @@ export default async function HeatersPage() {
     {
       id: "8",
       name: "EOS AquaJoy",
-      description: "Combined sauna heater with integrated aromatherapy system. Perfect for wellness and spa applications.",
+      description:
+        "Combined sauna heater with integrated aromatherapy system. Perfect for wellness and spa applications.",
       price: 1120,
       stockStatus: "in-stock",
       image: imageUrls.heaterProduct4,
@@ -100,7 +108,8 @@ export default async function HeatersPage() {
     {
       id: "9",
       name: "EOS Mythos S45",
-      description: "Professional grade heater with stainless steel construction. Features patented air circulation technology.",
+      description:
+        "Professional grade heater with stainless steel construction. Features patented air circulation technology.",
       price: 1450,
       stockStatus: "pre-order",
       image: imageUrls.heaterProduct1,
@@ -111,7 +120,8 @@ export default async function HeatersPage() {
     {
       id: "10",
       name: "EOS Core Compact",
-      description: "Space-saving design without compromising performance. Ideal for smaller residential saunas.",
+      description:
+        "Space-saving design without compromising performance. Ideal for smaller residential saunas.",
       price: 320,
       stockStatus: "in-stock",
       image: imageUrls.heaterProduct2,
@@ -119,11 +129,11 @@ export default async function HeatersPage() {
       saunaSize: "3.5 m³",
       power: "3.0 kW",
     },
-  ];
+  ]
 
-  const region = await getRegion(countryCode);
+  const region = await getRegion(countryCode)
   if (!region) {
-    return null;
+    return null
   }
 
   // Fetch a page of products from Medusa
@@ -133,9 +143,8 @@ export default async function HeatersPage() {
     pageParam: 1,
     countryCode,
     queryParams: { limit: 12, fields: "*variants.calculated_price" },
-  });
-  console.log("PRODUCTS", JSON.stringify(products[4], null, 2));
-
+  })
+  console.log("PRODUCTS", JSON.stringify(products[4], null, 2))
 
   // Map Medusa products into HeaterProduct shape consumed by UI
   const mapped: HeaterProduct[] = products.map((p) => ({
@@ -148,13 +157,34 @@ export default async function HeatersPage() {
       p.variants?.[0]?.calculated_price?.calculated_amount != null
         ? Math.round((p.variants[0] as any).calculated_price.calculated_amount)
         : 0,
-    stockStatus: (p.variants?.[0] as any)?.inventory_quantity > 0
-      ? ("in-stock" as const)
-      : ("pre-order" as const),
-    type: p.collection?.title || "—",
-    saunaSize: "—",
-    power: "—",
-  }));
+    // stockStatus: (p.variants?.[0] as any)?.inventory_quantity > 0
+    //   ? ("in-stock" as const)
+    //   : ("pre-order" as const),
+    stockStatus: "in-stock" as const,
+    type: (() => {
+      const vals =
+        ((p as any).options || [])
+          .find((o: any) => o?.title?.toLowerCase() === "type")
+          ?.values?.map((v: any) => String(v?.value || "")) || []
+      const toTitle = (s: string) =>
+        s.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
+      return vals.length ? vals.map(toTitle).join(" / ") : "—"
+    })(),
+    saunaSize: (() => {
+      const vals =
+        ((p as any).options || [])
+          .find((o: any) => o?.title?.toLowerCase() === "sauna size")
+          ?.values?.map((v: any) => String(v?.value || "")) || []
+      return vals.length ? vals.join(" / ") : "—"
+    })(),
+    power: (() => {
+      const vals =
+        ((p as any).options || [])
+          .find((o: any) => o?.title?.toLowerCase() === "power")
+          ?.values?.map((v: any) => String(v?.value || "")) || []
+      return vals.length ? vals.join(" / ") : "—"
+    })(),
+  }))
 
-  return <HeatersClient products={mapped} />;
+  return <HeatersClient products={mapped} />
 }
