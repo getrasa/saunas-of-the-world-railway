@@ -118,13 +118,15 @@ export async function middleware(request: NextRequest) {
 
   let redirectUrl = request.nextUrl.href
 
-  let response = NextResponse.redirect(redirectUrl, 307)
+  // Temporarily disable country code injection redirects
+  let response = NextResponse.next()
 
   // If no country code is set, we redirect to the relevant region.
-  if (!urlHasCountryCode && countryCode) {
-    redirectUrl = `${request.nextUrl.origin}/${countryCode}${redirectPath}${queryString}`
-    response = NextResponse.redirect(`${redirectUrl}`, 307)
-  }
+  // Temporarily disabled.
+  // if (!urlHasCountryCode && countryCode) {
+  //   redirectUrl = `${request.nextUrl.origin}/${countryCode}${redirectPath}${queryString}`
+  //   response = NextResponse.redirect(`${redirectUrl}`, 307)
+  // }
 
   // If a cart_id is in the params, we set it as a cookie and redirect to the address step.
   if (cartId && !checkoutStep) {
