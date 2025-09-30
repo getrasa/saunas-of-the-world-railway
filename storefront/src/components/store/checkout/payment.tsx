@@ -3,18 +3,24 @@
 import React, { useState } from 'react'
 import { Input } from '@lib/components/ui/input'
 import { Button } from '@lib/components/ui/button'
+import { useCart } from '~/contexts/cart-context'
+import { convertToLocale } from '@lib/util/money'
 
 interface PaymentProps {
   onContinue: () => void
 }
 
 export function Payment({ onContinue }: PaymentProps) {
+  const { cart } = useCart()
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
   const [cardNumber, setCardNumber] = useState('')
   const [cardHolder, setCardHolder] = useState('')
   const [expiryDate, setExpiryDate] = useState('')
   const [securityCode, setSecurityCode] = useState('')
+
+  const total = cart?.total || 0
+  const currencyCode = cart?.currency_code || 'AUD'
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -120,7 +126,9 @@ export function Payment({ onContinue }: PaymentProps) {
               <p className="text-[24px] font-medium">Order Total</p>
               <p className="text-[16px] font-medium text-[#6f6f6f] mt-2">Including GST</p>
             </div>
-            <p className="text-[24px] font-semibold">$480</p>
+            <p className="text-[24px] font-semibold">
+              {convertToLocale({ amount: total, currency_code: currencyCode })}
+            </p>
           </div>
 
           <Button

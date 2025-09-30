@@ -11,9 +11,10 @@ import {
   SheetTitle,
   SheetClose,
 } from "~/components/ui/sheet";
+import { convertToLocale } from "@lib/util/money";
 
 export function CartDrawer() {
-  const { items, isOpen, closeCart } = useCart();
+  const { items, isOpen, closeCart, cart } = useCart();
 
   const lastAddedItem = items[items.length - 1];
 
@@ -43,8 +44,8 @@ export function CartDrawer() {
               <div className="flex gap-6">
                 <div className="relative h-[238px] w-[241px] flex-shrink-0 bg-gray-50">
                   <Image
-                    src={lastAddedItem.image ?? ""}
-                    alt={lastAddedItem.name}
+                    src={lastAddedItem.variant?.product?.thumbnail || lastAddedItem.thumbnail || ""}
+                    alt={lastAddedItem.title || "Product"}
                     fill
                     className="object-contain"
                   />
@@ -52,26 +53,24 @@ export function CartDrawer() {
                 <div className="flex-1">
                   <h3 className="mb-4 text-xl">
                     <span className="font-medium text-[#C5AF71]">
-                      {lastAddedItem.name.split(" - ")[0]}
+                      {lastAddedItem.variant?.product?.title || lastAddedItem.title}
                     </span>
-                    <span> - {lastAddedItem.name.split(" - ")[1]}</span>
                   </h3>
-                  {lastAddedItem.selectedOptions && (
+                  {lastAddedItem.variant?.title && lastAddedItem.variant?.title !== "Default" && (
                     <p className="mb-3 text-base text-gray-600">
-                      {[
-                        lastAddedItem.selectedOptions.design,
-                        lastAddedItem.selectedOptions.model,
-                        lastAddedItem.selectedOptions.power,
-                      ]
-                        .filter(Boolean)
-                        .join(", ")}
+                      {lastAddedItem.variant.title}
                     </p>
                   )}
-                  <p className="mb-3 text-sm text-gray-600">
-                    Include: Wall-mounting. 3,5 m connection cable 4 x 1,5 mm²
-                  </p>
+                  {lastAddedItem.variant?.product?.description && (
+                    <p className="mb-3 text-sm text-gray-600">
+                      {lastAddedItem.variant.product.description.substring(0, 100)}...
+                    </p>
+                  )}
                   <p className="mb-4 text-2xl font-semibold">
-                    ${lastAddedItem.price}
+                    {cart?.currency_code && lastAddedItem.unit_price && convertToLocale({
+                      amount: lastAddedItem.unit_price,
+                      currency_code: cart.currency_code,
+                    })}
                   </p>
                   <p className="text-base text-gray-600">
                     Amount: {lastAddedItem.quantity}

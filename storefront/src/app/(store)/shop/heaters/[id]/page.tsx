@@ -135,6 +135,7 @@ export default async function ProductDetailsPage({ params }: { params: { id: str
       description={p?.description ?? null}
       images={images.length ? images : null}
       price={price != null ? Math.round(price) : null}
+      product={p}
     />
   )
 }

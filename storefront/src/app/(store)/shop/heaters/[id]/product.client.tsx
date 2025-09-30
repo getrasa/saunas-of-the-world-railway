@@ -11,6 +11,8 @@ import { HeaterCard, type HeaterProduct } from "~/components/store/heater-card";
 import { StockIndicator } from "~/components/store/stock-indicator";
 import { useCart } from "~/contexts/cart-context";
 import { imageUrls } from "~/lib/imageUrls";
+import { addToCart } from "@lib/data/cart";
+import { StoreProduct } from "@medusajs/types";
 
 type ProductClientProps = {
   title: string | null
@@ -18,6 +20,7 @@ type ProductClientProps = {
   description: string | null
   images: string[] | null
   price: number | null
+  product?: StoreProduct
 }
 
 const relatedProducts: HeaterProduct[] = [
@@ -167,35 +170,38 @@ const mockProduct = {
   ],
 };
 
-export function ProductClient({ title, subtitle, description, images, price }: ProductClientProps) {
+export function ProductClient({ title, subtitle, description, images, price, product }: ProductClientProps) {
   const [quantity, setQuantity] = useState(1);
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
-  const { addToCart } = useCart();
+  const [isAdding, setIsAdding] = useState(false);
+  const { refreshCart, openCart } = useCart();
 
-  const handleAddToCart = () => {
-    const selectedDesign = mockProduct.optionGroups[0]?.options.find(
-      (opt) => opt.id === selectedOptions["Choose exterior designs"]
-    )?.label;
-    const selectedModel = mockProduct.optionGroups[1]?.options.find(
-      (opt) => opt.id === selectedOptions["Choose Model"]
-    )?.label;
-    const selectedPower = mockProduct.optionGroups[2]?.options.find(
-      (opt) => opt.id === selectedOptions["Choose Power"]
-    )?.label;
+  const handleAddToCart = async () => {
+    // For now, use the first variant if product exists
+    // In a full implementation, you'd match selectedOptions to the correct variant
+    const variantId = product?.variants?.[0]?.id;
+    
+    if (!variantId) {
+      console.error("No variant ID found");
+      return;
+    }
 
-    addToCart({
-      id: mockProduct.id,
-      name: mockProduct.fullName,
-      description: mockProduct.description,
-      price: price ?? mockProduct.price,
-      quantity,
-      image: (images && images[0]) || mockProduct.images[0] || "",
-      selectedOptions: {
-        design: selectedDesign,
-        model: selectedModel,
-        power: selectedPower,
-      },
-    });
+    setIsAdding(true);
+    try {
+      await addToCart({
+        variantId,
+        quantity,
+        countryCode: "au", // TODO: Get from context or URL
+      });
+      
+      // Refresh cart and open drawer to show the added item
+      await refreshCart();
+      openCart();
+    } catch (error) {
+      console.error("Failed to add to cart:", error);
+    } finally {
+      setIsAdding(false);
+    }
   };
 
   const productInfoSections = [
@@ -318,10 +324,20 @@ export function ProductClient({ title, subtitle, description, images, price }: P
 
             <button
               onClick={handleAddToCart}
-              className="flex h-12 w-full items-center justify-center gap-3 rounded-3xl bg-black text-white transition-colors hover:bg-gray-800"
+              disabled={isAdding}
+              className="flex h-12 w-full items-center justify-center gap-3 rounded-3xl bg-black text-white transition-colors hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <ShoppingCart className="h-5 w-5" />
-              <span className="font-semibold">Add to Cart</span>
+              {isAdding ? (
+                <>
+                  <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  <span className="font-semibold">Adding...</span>
+                </>
+              ) : (
+                <>
+                  <ShoppingCart className="h-5 w-5" />
+                  <span className="font-semibold">Add to Cart</span>
+                </>
+              )}
             </button>
           </div>
         </div>

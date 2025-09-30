@@ -25,7 +25,7 @@ const TopbarDesktop: React.FC<TopbarDesktopProps> = ({ isStore = false }) => {
           boxSizing: "border-box",
         }}
       >
-        {isTop ? <TopbarActions /> : <></>}
+        {isTop ? <TopbarActions isStore={isStore} /> : <></>}
         <NavigationDesktop isTop={isTop} />
       </div>
     </div>

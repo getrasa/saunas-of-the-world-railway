@@ -1,25 +1,17 @@
 "use client";
 
-import React, { createContext, useCallback, useContext, useMemo, useState } from "react";
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { HttpTypes } from "@medusajs/types";
 
-type CartItem = {
-  id: string;
-  name: string;
-  description?: string;
-  price: number;
-  quantity: number;
-  image?: string;
-  selectedOptions?: Record<string, string | undefined>;
-};
+type CartItem = HttpTypes.StoreCartLineItem;
 
 type CartContextValue = {
+  cart: HttpTypes.StoreCart | null;
   items: CartItem[];
   isOpen: boolean;
   openCart: () => void;
   closeCart: () => void;
-  addToCart: (item: CartItem) => void;
-  removeFromCart: (id: string) => void;
-  clearCart: () => void;
+  refreshCart: () => Promise<void>;
   totalQuantity: number;
   totalPrice: number;
 };
@@ -27,48 +19,73 @@ type CartContextValue = {
 const CartContext = createContext<CartContextValue | undefined>(undefined);
 
 export const CartProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
-  const [items, setItems] = useState<CartItem[]>([]);
+  const [cart, setCart] = useState<HttpTypes.StoreCart | null>(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const openCart = useCallback(() => setIsOpen(true), []);
   const closeCart = useCallback(() => setIsOpen(false), []);
 
-  const addToCart = useCallback((item: CartItem) => {
-    setItems((prev) => {
-      const index = prev.findIndex((i) => i.id === item.id);
-      if (index !== -1) {
-        const updated = [...prev];
-        updated[index] = { ...updated[index], quantity: updated[index].quantity + item.quantity };
-        return updated;
+  // Fetch cart data from the server
+  const refreshCart = useCallback(async () => {
+    if (isRefreshing) return;
+    
+    setIsRefreshing(true);
+    try {
+      const response = await fetch('/api/cart', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setCart(data.cart);
       }
-      return [...prev, item];
-    });
-    setIsOpen(true);
+    } catch (error) {
+      console.error('Failed to fetch cart:', error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [isRefreshing]);
+
+  // Load cart on mount
+  useEffect(() => {
+    refreshCart();
   }, []);
 
-  const removeFromCart = useCallback((id: string) => {
-    setItems((prev) => prev.filter((i) => i.id !== id));
-  }, []);
+  // Refresh cart periodically when drawer is open
+  useEffect(() => {
+    if (!isOpen) return;
+    
+    const interval = setInterval(() => {
+      refreshCart();
+    }, 2000); // Refresh every 2 seconds when drawer is open
+    
+    return () => clearInterval(interval);
+  }, [isOpen, refreshCart]);
 
-  const clearCart = useCallback(() => setItems([]), []);
+  const items = useMemo(() => {
+    return (cart?.items as CartItem[]) || [];
+  }, [cart]);
 
   const totals = useMemo(() => {
-    const totalQuantity = items.reduce((sum, i) => sum + i.quantity, 0);
-    const totalPrice = items.reduce((sum, i) => sum + i.quantity * i.price, 0);
+    const totalQuantity = items.reduce((sum, i) => sum + (i.quantity || 0), 0);
+    const totalPrice = cart?.subtotal || 0;
     return { totalQuantity, totalPrice };
-  }, [items]);
+  }, [items, cart]);
 
   const value = useMemo<CartContextValue>(() => ({
+    cart,
     items,
     isOpen,
     openCart,
     closeCart,
-    addToCart,
-    removeFromCart,
-    clearCart,
+    refreshCart,
     totalQuantity: totals.totalQuantity,
     totalPrice: totals.totalPrice,
-  }), [items, isOpen, openCart, closeCart, addToCart, removeFromCart, clearCart, totals.totalQuantity, totals.totalPrice]);
+  }), [cart, items, isOpen, openCart, closeCart, refreshCart, totals.totalQuantity, totals.totalPrice]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 };
@@ -80,5 +97,3 @@ export function useCart(): CartContextValue {
   }
   return ctx;
 }
-
-

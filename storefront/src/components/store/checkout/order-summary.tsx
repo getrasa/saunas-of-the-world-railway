@@ -1,50 +1,35 @@
 'use client'
 
 import React from 'react'
-
-interface OrderItem {
-  id: number
-  name: string
-  variant: string
-  amount: number
-  price: number
-  image: string
-}
+import Image from 'next/image'
+import { useCart } from '~/contexts/cart-context'
+import { convertToLocale } from '@lib/util/money'
 
 interface OrderSummaryProps {
-  items?: OrderItem[]
   showEditButton?: boolean
   onEdit?: () => void
 }
 
 export function OrderSummary({
-  items = [],
   showEditButton = true,
   onEdit
 }: OrderSummaryProps) {
-  const defaultItems: OrderItem[] = [
-    {
-      id: 1,
-      name: 'EOS Picco W - Sauna heater for small sauna cabins',
-      variant: 'Matt Black, Model 1, 3.5kW',
-      amount: 1,
-      price: 240,
-      image: '/placeholder-product.jpg'
-    },
-    {
-      id: 2,
-      name: 'EOS Picco M - Sauna heater for small sauna cabins',
-      variant: 'Matt Black, Model 1, 3.5kW',
-      amount: 1,
-      price: 240,
-      image: '/placeholder-product.jpg'
-    }
-  ]
+  const { items, cart } = useCart()
 
-  const orderItems = items.length > 0 ? items : defaultItems
-  const subtotal = orderItems.reduce((sum, item) => sum + item.price * item.amount, 0)
-  const shippingFee = 0
-  const total = subtotal + shippingFee
+  const subtotal = cart?.subtotal || 0
+  const shippingFee = 0 // TODO: Get from cart shipping methods
+  const total = cart?.total || subtotal + shippingFee
+  const currencyCode = cart?.currency_code || 'AUD'
+
+  if (!cart || items.length === 0) {
+    return (
+      <div className="w-[542px]">
+        <div className="bg-white rounded-2xl overflow-hidden p-8 text-center">
+          <p className="text-gray-600">Your cart is empty</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="w-[542px]">
@@ -53,7 +38,7 @@ export function OrderSummary({
         <div className="border-b border-silver px-[49px] py-[45px]">
           <div className="flex items-end justify-between">
             <h2 className="text-[24px] font-medium">Order Summary</h2>
-            <span className="text-[16px] font-medium">{orderItems.length} Items</span>
+            <span className="text-[16px] font-medium">{items.length} Items</span>
           </div>
         </div>
 
@@ -71,36 +56,63 @@ export function OrderSummary({
         )}
 
         {/* Order Items */}
-        {orderItems.map((item) => (
-          <div key={item.id} className="px-6 py-[33px] flex gap-[47px] border-b border-[#ededed] last:border-b-0">
-            <div className="w-[107px] h-[104px] rounded-lg px-[18px] py-1.5 flex items-center justify-center">
-              <div className="w-[89px] h-[103px] bg-gray-200 rounded-[111px]"></div>
+        {items.map((item) => {
+          const productTitle = item.variant?.product?.title || item.title
+          const variantTitle = item.variant?.title && item.variant.title !== 'Default' ? item.variant.title : ''
+          const thumbnail = item.variant?.product?.thumbnail || item.thumbnail
+          const unitPrice = item.unit_price || 0
+
+          return (
+            <div key={item.id} className="px-6 py-[33px] flex gap-[47px] border-b border-[#ededed] last:border-b-0">
+              <div className="w-[107px] h-[104px] rounded-lg flex items-center justify-center bg-gray-50">
+                {thumbnail ? (
+                  <Image
+                    src={thumbnail}
+                    alt={productTitle || 'Product'}
+                    width={107}
+                    height={104}
+                    className="object-contain"
+                  />
+                ) : (
+                  <div className="w-[89px] h-[103px] bg-gray-200 rounded-[111px]" />
+                )}
+              </div>
+              <div className="flex-1 space-y-2">
+                <p className="text-[16px] font-medium text-black line-clamp-2">{productTitle}</p>
+                {variantTitle && (
+                  <p className="text-[12px] text-[#6f6f6f]">{variantTitle}</p>
+                )}
+                <p className="text-[12px] text-[#6f6f6f]">Amount: {item.quantity}</p>
+              </div>
+              <div className="text-[16px] font-bold">
+                {convertToLocale({ amount: unitPrice, currency_code: currencyCode })}
+              </div>
             </div>
-            <div className="flex-1 space-y-2">
-              <p className="text-[16px] font-medium text-black">{item.name}</p>
-              <p className="text-[12px] text-[#6f6f6f]">{item.variant}</p>
-              <p className="text-[12px] text-[#6f6f6f]">Amount: {item.amount}</p>
-            </div>
-            <div className="text-[16px] font-bold">${item.price}</div>
-          </div>
-        ))}
+          )
+        })}
 
         {/* Products Total */}
         <div className="border-t border-[#ededed] px-12 py-[19px] flex items-center justify-between">
           <span className="text-[16px]">Products</span>
-          <span className="text-[16px]">${subtotal}</span>
+          <span className="text-[16px]">
+            {convertToLocale({ amount: subtotal, currency_code: currencyCode })}
+          </span>
         </div>
 
         {/* Shipping Fee */}
         <div className="px-12 py-[19px] flex items-center justify-between">
           <span className="text-[16px]">Shipping Fee</span>
-          <span className="text-[16px]">${shippingFee}</span>
+          <span className="text-[16px]">
+            {convertToLocale({ amount: shippingFee, currency_code: currencyCode })}
+          </span>
         </div>
 
         {/* Total */}
         <div className="border-t border-silver px-12 py-11 flex items-center justify-between">
           <span className="text-[24px] font-medium">Total</span>
-          <span className="text-[24px] font-semibold">${total}</span>
+          <span className="text-[24px] font-semibold">
+            {convertToLocale({ amount: total, currency_code: currencyCode })}
+          </span>
         </div>
       </div>
     </div>
