@@ -4,21 +4,24 @@ import React from 'react'
 import { cn } from '@lib/lib/utils'
 
 interface CheckoutStepsProps {
-  currentStep: 'shopping-bag' | 'shipping' | 'payment'
+  currentStepIndex: number
+  steps: string[]
+  onStepClick?: (stepId: string) => void
 }
 
-export function CheckoutSteps({ currentStep }: CheckoutStepsProps) {
-  const steps = [
+export function CheckoutSteps({ currentStepIndex, steps, onStepClick }: CheckoutStepsProps) {
+  const stepLabels = [
     { id: 'shopping-bag', label: 'Shopping Bag', number: '1' },
     { id: 'shipping', label: 'Shipping', number: '2' },
     { id: 'payment', label: 'Payment', number: '3' }
   ]
 
-  const currentStepIndex = steps.findIndex(step => step.id === currentStep)
+  // Filter to only show the first 3 steps (exclude thank-you from progress)
+  const visibleSteps = stepLabels.filter(step => steps.includes(step.id))
 
   return (
     <div className="flex items-center justify-center gap-2 py-8">
-      {steps.map((step, index) => (
+      {visibleSteps.map((step, index) => (
         <React.Fragment key={step.id}>
           <div className="flex items-center gap-2">
             <div className="relative size-[26px]">
@@ -45,7 +48,7 @@ export function CheckoutSteps({ currentStep }: CheckoutStepsProps) {
             </span>
           </div>
 
-          {index < steps.length - 1 && (
+          {index < visibleSteps.length - 1 && (
             <div className={cn(
               "h-[1px] w-[158px]",
               index < currentStepIndex ? "bg-[#C5AF71]" : "bg-gray-300"
