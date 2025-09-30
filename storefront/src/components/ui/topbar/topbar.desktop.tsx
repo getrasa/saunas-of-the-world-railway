@@ -7,13 +7,15 @@ import { imageUrls } from "~/lib/imageUrls";
 import { NavigationDesktop } from "../navigation/navigation.desktop";
 import TopbarActions from "./actions";
 
-export interface TopbarDesktopProps {}
+export interface TopbarDesktopProps {
+  isStore?: boolean;
+}
 
-const TopbarDesktop: React.FC<TopbarDesktopProps> = ({}) => {
+const TopbarDesktop: React.FC<TopbarDesktopProps> = ({ isStore = false }) => {
   const { topbarHeight, isTop } = useTopbarHeightRegulator();
 
   return (
-    <div className="container flex h-28 w-screen items-center justify-between transition-all duration-300" style={{ height: topbarHeight }}>
+    <div className={`${isStore ? 'max-w-[1512px]' : 'container'} flex h-28 w-screen items-center justify-between transition-all duration-300`} style={{ height: topbarHeight }}>
       <Logo />
       <div
         className={`flex h-full flex-col justify-between pt-4 text-[#4e4d4d] transition-all duration-500`}

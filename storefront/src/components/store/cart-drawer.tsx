@@ -43,10 +43,10 @@ export function CartDrawer() {
               <div className="flex gap-6">
                 <div className="relative h-[238px] w-[241px] flex-shrink-0 bg-gray-50">
                   <Image
-                    src={lastAddedItem.image}
+                    src={lastAddedItem.image ?? ""}
                     alt={lastAddedItem.name}
                     fill
-                    className="object-contain p-6"
+                    className="object-contain"
                   />
                 </div>
                 <div className="flex-1">
@@ -88,7 +88,7 @@ export function CartDrawer() {
           <div className="px-20 pb-16">
             <div className="space-y-4">
               <Link
-                href="/checkout"
+                href="/shop/checkout"
                 className="flex h-[49px] w-full items-center justify-center gap-3 rounded-3xl bg-black text-white transition-colors hover:bg-gray-800"
                 onClick={closeCart}
               >

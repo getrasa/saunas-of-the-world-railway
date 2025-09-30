@@ -20,18 +20,18 @@ const mockProduct = {
   ],
   optionGroups: [
     {
-      title: "Choose exterior designs",
+      title: "Controllers",
       options: [
-        { id: "matt-black", label: "Matt Black", available: true },
-        { id: "anthracite", label: "Anthracite Pearl", available: true },
-        { id: "stainless", label: "Stainless Steel", available: true },
+        { id: "matt-black", label: "EmoStyle D", available: true },
+        { id: "anthracite", label: "Compact DP", available: true },
+        { id: "stainless", label: "No controller", available: true },
       ],
     },
     {
       title: "Choose Model",
       options: [
-        { id: "model-1", label: "Model 1", available: true },
-        { id: "model-2", label: "Model 2", available: true },
+        { id: "model-1", label: "Rocks 1x", available: true },
+        { id: "model-2", label: "No rocks", available: true },
       ],
     },
     {

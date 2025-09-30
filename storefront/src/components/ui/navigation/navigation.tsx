@@ -3,8 +3,12 @@
 import React from "react";
 import Topbar from "../topbar/topbar";
 
-const Navigation: React.FC = () => {
-  return <Topbar />;
+export interface NavigationProps {
+  isStore?: boolean;
+}
+
+const Navigation: React.FC<NavigationProps> = ({ isStore = false }) => {
+  return <Topbar isStore={isStore} />;
 };
 
 export default Navigation;

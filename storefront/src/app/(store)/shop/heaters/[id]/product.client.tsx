@@ -107,18 +107,25 @@ const mockProduct = {
   ],
   optionGroups: [
     {
-      title: "Choose exterior designs",
+      title: "Controller (required)",
       options: [
-        { id: "matt-black", label: "Matt Black", available: true },
-        { id: "anthracite", label: "Anthracite Pearl", available: true },
-        { id: "stainless", label: "Stainless Steel", available: true },
+        { id: "stainless", label: "No controller", available: true },
+        { id: "matt-black", label: "EmoStyle D", available: true },
+        { id: "anthracite", label: "Compact DP", available: true },
       ],
     },
     {
-      title: "Choose Model",
+      title: "Power Extension Box (required)",
       options: [
-        { id: "model-1", label: "Model 1", available: true },
-        { id: "model-2", label: "Model 2", available: true },
+        { id: "stainless", label: "No box", available: true },
+        { id: "matt-black", label: "PEB 36", available: true },
+      ],
+    },
+    {
+      title: "Rocks",
+      options: [
+        { id: "model-2", label: "No rocks", available: true },
+        { id: "model-1", label: "Add rocks (1x)", available: true },
       ],
     },
     {
@@ -128,6 +135,28 @@ const mockProduct = {
         { id: "3.5kw", label: "3.5kW", available: true },
       ],
     },
+    // {
+    //   title: "Choose exterior designs",
+    //   options: [
+    //     { id: "matt-black", label: "Matt Black", available: true },
+    //     { id: "anthracite", label: "Anthracite Pearl", available: true },
+    //     { id: "stainless", label: "Stainless Steel", available: true },
+    //   ],
+    // },
+    // {
+    //   title: "Choose Model",
+    //   options: [
+    //     { id: "model-1", label: "Model 1", available: true },
+    //     { id: "model-2", label: "Model 2", available: true },
+    //   ],
+    // },
+    // {
+    //   title: "Choose Power",
+    //   options: [
+    //     { id: "3kw", label: "3.0 kW", available: true },
+    //     { id: "3.5kw", label: "3.5kW", available: true },
+    //   ],
+    // },
   ],
   advantages: [
     "German engineering and manufacturing",
