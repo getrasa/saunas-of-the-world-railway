@@ -7,5 +7,4 @@ export { WhyUs } from "./why-us.section";
 export { HomeScene } from "./home.scene";
 
 // Helper components (home-specific)
-export { HeroContent } from "./hero.content";
 export { ProductItem } from "./our-offering.item";

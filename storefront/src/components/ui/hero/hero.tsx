@@ -5,12 +5,14 @@ import { createRef, useEffect, useRef, useState } from "react";
 import {
   Carousel,
   CarouselContent,
+  CarouselItem,
   type CarouselApi,
 } from "~/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 import { HeroSelector } from "./hero-selector";
+import { HeroSlide } from "./hero-slide";
 
-interface HeroCarouselProps {
+interface HeroProps {
   children: ReactNode;
   aspectRatio?: string;
   autoplayDelay?: number;
@@ -19,14 +21,23 @@ interface HeroCarouselProps {
   className?: string;
 }
 
-export const HeroCarousel = ({
+interface HeroItemProps {
+  imageSrc: string;
+  imageAlt: string;
+  priority?: boolean;
+  brightness?: string;
+  children?: ReactNode;
+  className?: string;
+}
+
+const HeroRoot = ({
   children,
   aspectRatio = "aspect-[10/8] sm:aspect-[12/8] lg:aspect-[16/8] xl:aspect-[20/8]",
   autoplayDelay = 8000,
   showSelector = true,
   selectorPosition = "bottom-8",
   className = "",
-}: HeroCarouselProps): JSX.Element => {
+}: HeroProps): JSX.Element => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [api, setApi] = useState<CarouselApi | undefined>(undefined);
   const [pause, setPause] = useState(false);
@@ -90,3 +101,29 @@ export const HeroCarousel = ({
     </div>
   );
 };
+
+const HeroItem = ({ 
+  imageSrc, 
+  imageAlt, 
+  priority = false, 
+  brightness = "brightness-75",
+  children, 
+  className = "relative h-full w-screen" 
+}: HeroItemProps): JSX.Element => {
+  return (
+    <CarouselItem className={className}>
+      <HeroSlide
+        imageSrc={imageSrc}
+        imageAlt={imageAlt}
+        priority={priority}
+        brightness={brightness}
+      >
+        {children}
+      </HeroSlide>
+    </CarouselItem>
+  );
+};
+
+export const Hero = Object.assign(HeroRoot, {
+  Item: HeroItem,
+});
