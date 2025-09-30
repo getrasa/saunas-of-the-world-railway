@@ -1,4 +1,4 @@
-import { AboutScene } from "~/components/products/about";
+import { AboutScene } from "~/components/about";
 
 export default function AboutPage() {
   return <AboutScene />;
