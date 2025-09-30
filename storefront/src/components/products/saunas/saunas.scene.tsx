@@ -1,3 +1,6 @@
+"use client";
+
+
 import ProductHero from "../shared/product-hero";
 import { ProductShowcase, ProductSide } from "../shared/product-showcase";
 import { HealthWellbeing } from "../shared/health-wellbeing";

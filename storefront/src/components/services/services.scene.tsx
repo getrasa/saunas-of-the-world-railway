@@ -1,3 +1,6 @@
+"use client";
+
+
 import ContactUs from "../ui/contact-us/contact-us";
 import React from "react";
 import ProductHero from "../products/shared/product-hero";

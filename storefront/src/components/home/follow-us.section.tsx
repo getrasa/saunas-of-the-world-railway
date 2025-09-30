@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Facebook, Youtube, Instagram } from "lucide-react";
+import { FacebookIcon, YoutubeIcon, InstagramIcon } from "~/components/custom-icons";
 
 export const FollowUs = () => {
   const socialMediaLinks = [
-    { href: "https://www.facebook.com/saunasworld.au", icon: Facebook },
-    { href: "https://www.youtube.com/@saunasoftheworld557", icon: Youtube },
-    { href: "https://www.instagram.com/saunasworld/?hl=en", icon: Instagram },
+    { href: "https://www.facebook.com/saunasworld.au", Icon: FacebookIcon },
+    { href: "https://www.youtube.com/@saunasoftheworld557", Icon: YoutubeIcon },
+    { href: "https://www.instagram.com/saunasworld/?hl=en", Icon: InstagramIcon },
   ];
 
   return (
@@ -19,7 +19,7 @@ export const FollowUs = () => {
             <EnlargingIcon
               key={index}
               href={link.href}
-              Icon={link.icon}
+              Icon={link.Icon}
             />
           ))}
         </div>
@@ -43,7 +43,6 @@ const EnlargingIcon = ({ href, Icon }: { href: string; Icon: React.ComponentType
     >
       <Icon 
         size={size} 
-        className="transition-all duration-200 ease-in-out cursor-pointer"
       />
     </a>
   );
