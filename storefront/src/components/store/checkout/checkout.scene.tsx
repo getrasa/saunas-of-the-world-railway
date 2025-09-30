@@ -3,6 +3,7 @@
 import React from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Image from "next/image"
+import Link from "next/link"
 import { Wizard } from "@/components/ui/wizard"
 import { CheckoutSteps } from "./checkout-steps"
 import { ShoppingBag } from "./steps/shopping-bag"
@@ -33,19 +34,22 @@ export function CheckoutScene() {
         <div className="flex max-w-[1512px] mx-auto relative">
           {/* Logo */}
           <div className="absolute left-12 top-4">
-            <Image
-              src="/images/topbar/logo.png"
-              alt="Saunas of the World"
-              width={189}
-              height={69}
-              className="object-contain"
-            />
+            <Link href="/shop">
+              <Image
+                src="/images/topbar/logo.png"
+                alt="Saunas of the World"
+                width={189}
+                height={69}
+                className="object-contain cursor-pointer"
+              />
+            </Link>
           </div>
           <div className="pt-2 w-full flex justify-center items-center">
             <Wizard.Progress>
-              {({ currentStepIndex, steps, goToStep }) => (
+              {({ currentStepIndex, steps, goToStep, currentStepId }) => (
                 <CheckoutSteps
                   currentStepIndex={currentStepIndex}
+                  currentStepId={currentStepId}
                   steps={steps}
                   onStepClick={goToStep}
                 />

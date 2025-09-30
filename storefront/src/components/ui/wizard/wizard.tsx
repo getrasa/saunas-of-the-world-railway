@@ -22,6 +22,7 @@ interface WizardProgressProps {
     currentStepIndex: number
     totalSteps: number
     steps: string[]
+    currentStepId: string
     goToStep: (stepId: string) => void
   }) => React.ReactNode
 }
@@ -65,11 +66,11 @@ function WizardStep({ id, children, className }: WizardStepProps) {
 }
 
 function WizardProgress({ children }: WizardProgressProps) {
-  const { currentStepIndex, totalSteps, steps, goToStep } = useWizard()
+  const { currentStepIndex, totalSteps, steps, currentStepId, goToStep } = useWizard()
 
   return (
     <>
-      {children({ currentStepIndex, totalSteps, steps, goToStep })}
+      {children({ currentStepIndex, totalSteps, steps, currentStepId, goToStep })}
     </>
   )
 }
