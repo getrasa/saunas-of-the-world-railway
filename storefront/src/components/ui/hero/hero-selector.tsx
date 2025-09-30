@@ -29,5 +29,3 @@ export const HeroSelector = (props: HeroSelectorProps): JSX.Element => {
   const emptyArray = new Array(count).fill(null);
   return <div className="flex gap-4">{emptyArray.map((_, i) => getCircle(i, i === current))}</div>;
 };
-
-

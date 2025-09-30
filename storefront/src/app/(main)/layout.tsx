@@ -1,4 +1,4 @@
-import { FollowUs } from "~/components/home/follow-us/follow-us";
+import { FollowUs } from "~/components/home";
 import { Footer } from "~/components/ui/footer/footer";
 import { NavigationBar } from "~/components/ui/navigation";
 

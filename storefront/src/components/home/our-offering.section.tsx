@@ -1,6 +1,6 @@
 import type { JSX } from "react";
 import { imageUrls } from "~/lib/imageUrls";
-import { ProductItem } from "./out-offering.item";
+import { ProductItem } from "./our-offering.item";
 
 export const OurOffering = (): JSX.Element => {
   return (
@@ -43,5 +43,3 @@ export const OurOffering = (): JSX.Element => {
     </section>
   );
 };
-
-

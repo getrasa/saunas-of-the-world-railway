@@ -10,8 +10,8 @@ export const metadata: Metadata = {
 export default function RootLayout(props: { children: React.ReactNode }) {
   return (
     <>
-        <NavigationBar isStore={true} />
-        <main className="relative">{props.children}</main>
-        </>
+      <NavigationBar isStore={true} />
+      <main className="relative">{props.children}</main>
+    </>
   )
 }

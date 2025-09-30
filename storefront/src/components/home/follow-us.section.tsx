@@ -28,7 +28,7 @@ export const FollowUs = () => {
   );
 };
 
-const EnlargingIcon = ({ href, Icon }: { href: string; Icon: React.ComponentType<{ size?: number; className?: string }> }) => {
+const EnlargingIcon = ({ href, Icon }: { href: string; Icon: React.ComponentType<any> }) => {
   const [hover, setHover] = useState(false);
   const size = hover ? 56 : 48;
 

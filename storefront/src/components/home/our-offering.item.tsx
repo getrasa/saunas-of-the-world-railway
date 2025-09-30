@@ -35,5 +35,3 @@ export const ProductItem = (props: ProductItemProps): JSX.Element => {
     </div>
   );
 };
-
-
