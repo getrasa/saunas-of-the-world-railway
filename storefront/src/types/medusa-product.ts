@@ -4,7 +4,7 @@ import { HttpTypes } from "@medusajs/types"
  * Extended Medusa product type with heater-specific metadata
  */
 export interface HeaterProductMetadata {
-  PEB?: string // JSON string array like '["PED 36"]'
+  peb?: string // JSON string array like '["PED 36"]'
   size_to?: number
   size_from?: number
   rock_boxes?: number

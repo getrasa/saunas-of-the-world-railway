@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Check, ShoppingCart, X } from "lucide-react";
 import { useCart } from "~/contexts/cart-context";
+import { useMemo } from "react";
 import {
   Sheet,
   SheetContent,
@@ -12,11 +13,40 @@ import {
   SheetClose,
 } from "~/components/ui/sheet";
 import { convertToLocale } from "@lib/util/money";
+import { HttpTypes } from "@medusajs/types";
+
+type CartItem = HttpTypes.StoreCartLineItem;
+
+// Function to determine if a product is a heater or accessory
+function isHeaterProduct(item: CartItem): boolean {
+  const productTitle = item.variant?.product?.title?.toLowerCase() || item.title?.toLowerCase() || "";
+  const productHandle = (item.variant?.product as any)?.handle?.toLowerCase() || "";
+  
+  // Accessories typically have these keywords
+  const accessoryKeywords = ["controller", "rock", "stone", "peb", "extension", "box"];
+  
+  // Check if it's an accessory
+  const isAccessory = accessoryKeywords.some(keyword => 
+    productTitle.includes(keyword) || productHandle.includes(keyword)
+  );
+  
+  return !isAccessory;
+}
 
 export function CartDrawer() {
   const { items, isOpen, closeCart, cart } = useCart();
 
-  const lastAddedItem = items[items.length - 1];
+  // Sort items: heaters first, then accessories
+  const sortedItems = useMemo(() => {
+    return [...items].sort((a, b) => {
+      const aIsHeater = isHeaterProduct(a);
+      const bIsHeater = isHeaterProduct(b);
+      
+      if (aIsHeater && !bIsHeater) return -1;
+      if (!aIsHeater && bIsHeater) return 1;
+      return 0;
+    });
+  }, [items]);
 
   return (
     <Sheet open={isOpen} onOpenChange={closeCart}>
@@ -38,53 +68,53 @@ export function CartDrawer() {
             </SheetClose>
           </SheetHeader>
 
-          {/* Last Added Item */}
-          {lastAddedItem && (
-            <div className="px-16 py-10">
-              <div className="flex gap-6">
-                <div className="relative h-[238px] w-[241px] flex-shrink-0 bg-gray-50">
-                  <Image
-                    src={lastAddedItem.variant?.product?.thumbnail || lastAddedItem.thumbnail || ""}
-                    alt={lastAddedItem.title || "Product"}
-                    fill
-                    className="object-contain"
-                  />
-                </div>
-                <div className="flex-1">
-                  <h3 className="mb-4 text-xl">
-                    <span className="font-medium text-[#C5AF71]">
-                      {lastAddedItem.variant?.product?.title || lastAddedItem.title}
-                    </span>
-                  </h3>
-                  {lastAddedItem.variant?.title && lastAddedItem.variant?.title !== "Default" && (
-                    <p className="mb-3 text-base text-gray-600">
-                      {lastAddedItem.variant.title}
-                    </p>
-                  )}
-                  {lastAddedItem.variant?.product?.description && (
-                    <p className="mb-3 text-sm text-gray-600">
-                      {lastAddedItem.variant.product.description.substring(0, 100)}...
-                    </p>
-                  )}
-                  <p className="mb-4 text-2xl font-semibold">
-                    {cart?.currency_code && lastAddedItem.unit_price && convertToLocale({
-                      amount: lastAddedItem.unit_price,
-                      currency_code: cart.currency_code,
-                    })}
-                  </p>
-                  <p className="text-base text-gray-600">
-                    Amount: {lastAddedItem.quantity}
-                  </p>
-                </div>
+          {/* Scrollable Items List */}
+          <div className="flex-1 overflow-y-auto px-8 py-6">
+            {sortedItems.length > 0 ? (
+              <div className="space-y-6">
+                {sortedItems.map((item) => (
+                  <div key={item.id} className="flex gap-6 border-b border-gray-200 pb-6 last:border-b-0">
+                    <div className="relative h-[120px] w-[120px] flex-shrink-0 bg-gray-50">
+                      <Image
+                        src={item.variant?.product?.thumbnail || item.thumbnail || ""}
+                        alt={item.title || "Product"}
+                        fill
+                        className="object-contain"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="mb-2 text-base">
+                        <span className="font-medium text-[#C5AF71]">
+                          {item.variant?.product?.title || item.title}
+                        </span>
+                      </h3>
+                      {item.variant?.title && item.variant?.title !== "Default" && (
+                        <p className="mb-2 text-sm text-gray-600">
+                          {item.variant.title}
+                        </p>
+                      )}
+                      <p className="mb-2 text-lg font-semibold">
+                        {cart?.currency_code && item.unit_price && convertToLocale({
+                          amount: item.unit_price,
+                          currency_code: cart.currency_code,
+                        })}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        Quantity: {item.quantity}
+                      </p>
+                    </div>
+                  </div>
+                ))}
               </div>
-            </div>
-          )}
-
-          {/* Spacer */}
-          <div className="flex-1" />
+            ) : (
+              <div className="flex h-full items-center justify-center text-gray-500">
+                Your cart is empty
+              </div>
+            )}
+          </div>
 
           {/* Footer Actions */}
-          <div className="px-20 pb-16">
+          <div className="border-t border-gray-200 px-20 py-8">
             <div className="space-y-4">
               <Link
                 href="/shop/checkout"

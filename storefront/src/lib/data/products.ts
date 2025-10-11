@@ -39,6 +39,24 @@ export async function getProductByHandle(
     .then(({ products }) => products[0])
 }
 
+export async function getProductsByHandles(
+  handles: string[],
+  regionId: string
+) {
+  if (handles.length === 0) return []
+  
+  return sdk.store.product
+    .list(
+      {
+        handle: handles,
+        region_id: regionId,
+        fields: "*variants.calculated_price,+variants.inventory_quantity",
+      },
+      { next: { tags: ["products"] } }
+    )
+    .then(({ products }) => products)
+}
+
 export async function getProductsList({
   pageParam = 1,
   queryParams,

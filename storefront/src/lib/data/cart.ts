@@ -102,6 +102,45 @@ export async function addToCart({
     .catch(medusaError)
 }
 
+export async function addMultipleToCart({
+  items,
+  countryCode,
+}: {
+  items: Array<{ variantId: string; quantity: number }>
+  countryCode: string
+}) {
+  if (!items || items.length === 0) {
+    throw new Error("No items provided when adding to cart")
+  }
+
+  const cart = await getOrSetCart(countryCode)
+  if (!cart) {
+    throw new Error("Error retrieving or creating cart")
+  }
+
+  // Add all items sequentially to ensure they all get added
+  for (const item of items) {
+    if (!item.variantId) {
+      console.error("Skipping item with missing variant ID")
+      continue
+    }
+
+    await sdk.store.cart
+      .createLineItem(
+        cart.id,
+        {
+          variant_id: item.variantId,
+          quantity: item.quantity,
+        },
+        {},
+        getAuthHeaders()
+      )
+      .catch(medusaError)
+  }
+
+  revalidateTag("cart")
+}
+
 export async function updateLineItem({
   lineId,
   quantity,

@@ -1,7 +1,11 @@
 import { sdk } from "~/lib/config"
 import { HeaterDetailScene } from "~/components/store/heaters/details/heater-detail.scene"
 import { getRegion } from "@lib/data/regions"
-import type { HeaterProduct } from "~/types/medusa-product"
+import { getProductsByHandles } from "@lib/data/products"
+import type { HeaterProduct, HeaterProductMetadata } from "~/types/medusa-product"
+import { toKebabCase } from "~/lib/utils"
+
+export const revalidate = 0
 
 export default async function ProductDetailsPage({ params }: { params: { id: string } }) {
   const countryCode = "au"
@@ -61,11 +65,71 @@ export default async function ProductDetailsPage({ params }: { params: { id: str
       .slice(0, 7)
   }
 
+  // Fetch accessory products (controllers, PEB, rocks)
+  const metadata = product.metadata as HeaterProductMetadata | undefined
+  const accessoryHandles = new Set<string>()
+
+  // Add controller handles
+  if (metadata?.controllers) {
+    try {
+      const controllersArray = JSON.parse(metadata.controllers)
+      if (Array.isArray(controllersArray)) {
+        controllersArray.forEach((controller: string) => {
+          accessoryHandles.add(toKebabCase(controller))
+        })
+      }
+    } catch (e) {
+      console.error("Failed to parse controllers metadata:", e)
+    }
+  }
+
+  // Add PEB handles
+  if (metadata?.peb) {
+    try {
+      const pebArray = JSON.parse(metadata.peb)
+      if (Array.isArray(pebArray)) {
+        pebArray.forEach((peb: string) => {
+          accessoryHandles.add(toKebabCase(peb))
+        })
+      }
+    } catch (e) {
+      console.error("Failed to parse PEB metadata:", e)
+    }
+  }
+
+  // Add rocks handle if rock_boxes is present
+  if (metadata?.rock_boxes && metadata.rock_boxes > 0) {
+    accessoryHandles.add("rocks")
+  }
+
+  // Fetch all accessory products by handle
+  const accessoryProductsList = await getProductsByHandles(
+    Array.from(accessoryHandles),
+    region.id
+  )
+
+  // Create a map of handle -> product data
+  const accessoryProducts: Record<string, any> = {}
+  accessoryProductsList.forEach((product) => {
+    if (product.handle && product.variants && product.variants.length > 0) {
+      const variant = product.variants[0]
+      const amount = (variant as any)?.calculated_price?.calculated_amount
+
+      accessoryProducts[product.handle] = {
+        id: product.id,
+        handle: product.handle,
+        variantId: variant.id,
+        price: amount != null ? Math.round(amount) : 0,
+      }
+    }
+  })
+
   return (
     <HeaterDetailScene
       product={product}
       relatedProducts={relatedProducts}
       countryCode={countryCode}
+      accessoryProducts={accessoryProducts}
     />
   )
 }
