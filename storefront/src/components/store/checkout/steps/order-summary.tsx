@@ -1,9 +1,10 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { useCart } from '~/contexts/cart-context'
 import { convertToLocale } from '@lib/util/money'
+import { calculateShipping } from '@lib/services/shipping'
 
 interface OrderSummaryProps {
   showEditButton?: boolean
@@ -15,10 +16,17 @@ export function OrderSummary({
   onEdit
 }: OrderSummaryProps) {
   const { items, cart } = useCart()
+  const [shippingFee, setShippingFee] = useState(0)
+
+  // Calculate shipping on mount
+  useEffect(() => {
+    calculateShipping().then((shipping) => {
+      setShippingFee(shipping.cost)
+    })
+  }, [])
 
   const subtotal = cart?.subtotal || 0
-  const shippingFee = 0 // TODO: Get from cart shipping methods
-  const total = cart?.total || subtotal + shippingFee
+  const total = subtotal + shippingFee
   const currencyCode = cart?.currency_code || 'AUD'
 
   if (!cart || items.length === 0) {
