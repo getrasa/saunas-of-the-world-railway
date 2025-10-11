@@ -15,9 +15,15 @@ export function AddToCartButton({
   className = "",
   children 
 }: AddToCartButtonProps) {
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    onClick()
+  }
+
   return (
     <button
-      onClick={onClick}
+      onClick={handleClick}
       disabled={disabled || isLoading}
       className={`flex h-12 w-full items-center justify-center gap-3 rounded-3xl bg-black text-white transition-colors hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
     >

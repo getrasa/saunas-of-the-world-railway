@@ -32,6 +32,7 @@ export const NavigationMobile: React.FC<NavigationMobileProps> = ({ menuOpen }) 
             <MobileLinkItem title="Equipment" path="/products/equipment" secondary />
             <MobileLinkItem title="Materials & Accessories" path="/products/materials" secondary />
           </MobileLinkItem>
+          <MobileLinkItem title="Shop" path="/shop" />
           <MobileLinkItem title="Services" path="/services" />
           <MobileLinkItem title="Gallery" path="/gallery" />
           <MobileLinkItem title="Company" path="/about" />

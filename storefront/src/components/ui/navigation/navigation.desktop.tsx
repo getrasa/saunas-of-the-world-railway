@@ -18,6 +18,7 @@ export const NavigationDesktop = (props: { isTop: boolean }) => {
   return (
     <div className="flex text-[15px] font-medium tracking-wider" style={{ height: isTop ? undefined : "100%" }}>
       <MenuButton text="PRODUCTS" menu={productTypes} />
+      <MenuButton text="SHOP" dest="/shop" />
       <MenuButton text="SERVICES" dest="/services" />
       <MenuButton text="GALLERY" dest="/gallery" />
       <MenuButton text="COMPANY" dest="/about" />

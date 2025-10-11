@@ -72,6 +72,24 @@ export default async function HeatersPage({ searchParams }: HeatersPageProps) {
       return "—"
     }
 
+    // Get all variant powers from options and sort numerically
+    const powerNumbers = p.variants
+      ?.map(v => {
+        // Find the power option value
+        const powerOption = v.options?.find(opt => 
+          opt.option?.title?.toLowerCase() === "power"
+        )
+        return powerOption?.value
+      })
+      .filter(Boolean)
+      .map(v => parseFloat(v as string))
+      .filter(v => !isNaN(v))
+      .sort((a, b) => a - b) || []
+    
+    const powerDisplay = powerNumbers.length > 0 
+      ? powerNumbers.map(v => `${v} kW`).join(" / ") 
+      : "—"
+
     return {
       id: p.id!,
       name: p.title!,
@@ -80,12 +98,18 @@ export default async function HeatersPage({ searchParams }: HeatersPageProps) {
       price: amount != null ? Math.round(amount) : 0,
       stockStatus: status,
       variantId: variant?.id,
-      metadata: {
-        "Sauna Size": p.metadata?.size_from && p.metadata?.size_to 
-          ? `${p.metadata.size_from} - ${p.metadata.size_to} m³`
-          : formatValue(p.metadata?.size_to || p.metadata?.size_from),
+      // Options for display on the card
+      options: {
+        "Power": powerDisplay,
+        "Size up to": p.metadata?.size_to ? `${p.metadata.size_to} m³` : "—",
         "Rock Boxes": formatValue(p.metadata?.rock_boxes),
-        "Controllers": formatValue(p.metadata?.controllers),
+      },
+      // Metadata for filtering
+      metadata: {
+        power: powerNumbers,
+        sizeFrom: p.metadata?.size_from,
+        sizeTo: p.metadata?.size_to,
+        rockBoxes: p.metadata?.rock_boxes,
       },
     }
   })

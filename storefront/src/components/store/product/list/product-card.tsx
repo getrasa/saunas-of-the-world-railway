@@ -1,6 +1,7 @@
+import { useState } from "react"
 import Image from "next/image"
-import { ShoppingCart } from "lucide-react"
 import { StockIndicator, type StockStatus } from "~/components/store/stock-indicator"
+import { AddToCartButton } from "~/components/ui/buttons/add-to-cart.button"
 
 export interface ProductCardData {
   id: string
@@ -9,13 +10,19 @@ export interface ProductCardData {
   price: number
   stockStatus: StockStatus
   image: string
-  metadata?: Record<string, string>
+  options?: Record<string, string>
+  metadata?: {
+    power?: number[]
+    sizeFrom?: number
+    sizeTo?: number
+    rockBoxes?: number
+  }
   variantId?: string
 }
 
 interface ProductCardProps {
   product: ProductCardData
-  onAddToCart?: (product: ProductCardData) => void
+  onAddToCart?: (product: ProductCardData) => void | Promise<void>
   className?: string
   children?: React.ReactNode
 }
@@ -30,7 +37,7 @@ export function ProductCard({ product, onAddToCart, className = "", children }: 
           {onAddToCart && (
             <ProductCard.Actions product={product} onAddToCart={onAddToCart} />
           )}
-          {product.metadata && <ProductCard.Metadata metadata={product.metadata} />}
+          {product.options && <ProductCard.Options options={product.options} />}
         </>
       )}
     </div>
@@ -79,38 +86,43 @@ function CardInfo({ product, className = "" }: CardInfoProps) {
 
 interface CardActionsProps {
   product: ProductCardData
-  onAddToCart: (product: ProductCardData) => void
+  onAddToCart: (product: ProductCardData) => void | Promise<void>
   className?: string
 }
 
 function CardActions({ product, onAddToCart, className = "" }: CardActionsProps) {
-  const handleClick = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    onAddToCart(product)
+  const [isLoading, setIsLoading] = useState(false)
+
+  const handleClick = async () => {
+    setIsLoading(true)
+    try {
+      await onAddToCart(product)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
-    <button
+    <AddToCartButton
       onClick={handleClick}
       disabled={product.stockStatus === "out-of-stock"}
-      className={`flex h-12 w-full items-center justify-center gap-3 rounded-3xl bg-black text-white transition-colors hover:bg-gray-800 disabled:cursor-not-allowed disabled:bg-gray-300 ${className}`}
+      isLoading={isLoading}
+      className={className}
     >
-      <ShoppingCart className="h-5 w-5" />
-      <span className="font-medium">Add to My Cart</span>
-    </button>
+      Add to My Cart
+    </AddToCartButton>
   )
 }
 
-interface CardMetadataProps {
-  metadata: Record<string, string>
+interface CardOptionsProps {
+  options: Record<string, string>
   className?: string
 }
 
-function CardMetadata({ metadata, className = "" }: CardMetadataProps) {
+function CardOptions({ options, className = "" }: CardOptionsProps) {
   return (
     <div className={`flex flex-col gap-3 border-t pt-3 ${className}`}>
-      {Object.entries(metadata).map(([key, value]) => (
+      {Object.entries(options).map(([key, value]) => (
         <div key={key} className="flex flex-col gap-1">
           <span className="text-xs font-medium text-[#C5AF71]">{key}</span>
           <span className="text-xs text-gray-600">{value}</span>
@@ -123,5 +135,5 @@ function CardMetadata({ metadata, className = "" }: CardMetadataProps) {
 ProductCard.Image = CardImage
 ProductCard.Info = CardInfo
 ProductCard.Actions = CardActions
-ProductCard.Metadata = CardMetadata
+ProductCard.Options = CardOptions
 
