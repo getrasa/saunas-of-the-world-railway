@@ -16,7 +16,6 @@ interface PaymentProps {
   onContinue: () => void
   setIsSubmitting: (isSubmitting: boolean) => void
   setSubmitError: (error: string | null) => void
-  setOrderData: (data: { orderId: string; paymentMethod: string } | null) => void
   clearSavedData: () => void
 }
 
@@ -45,7 +44,6 @@ function PaymentForm({
   onContinue, 
   setIsSubmitting, 
   setSubmitError,
-  setOrderData,
   clearSavedData
 }: PaymentProps) {
   const { form, isSubmitting, submitError } = useCheckoutFormContext()
@@ -235,22 +233,8 @@ function PaymentForm({
         }
 
         // Payment succeeded, complete the order
-        try {
-          const orderResult = await placeOrder()
-          
-          if (orderResult && 'id' in orderResult) {
-            setOrderData({
-              orderId: orderResult.id,
-              paymentMethod: 'credit_card',
-            })
-            clearSavedData()
-            onContinue()
-          } else {
-            throw new Error('Failed to create order. Please contact support.')
-          }
-        } catch (orderError: any) {
-          throw new Error(orderError.message || 'Payment succeeded but failed to create order. Please contact support.')
-        }
+        clearSavedData()
+        await placeOrder() // This will redirect to /order/confirmed/[orderId]
       } else {
         // Handle pay for quote (manual payment)
         if (!cart) {
@@ -263,16 +247,8 @@ function PaymentForm({
         })
 
         // Complete the order with manual payment (pending)
-        const orderResult = await placeOrder()
-        
-        if (orderResult && 'id' in orderResult) {
-          setOrderData({
-            orderId: orderResult.id,
-            paymentMethod: 'pay_for_quote',
-          })
-          clearSavedData()
-    onContinue()
-        }
+        clearSavedData()
+        await placeOrder() // This will redirect to /order/confirmed/[orderId]
       }
     } catch (error: any) {
       console.error('Payment error:', error)

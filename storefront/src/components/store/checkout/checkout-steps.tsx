@@ -17,17 +17,12 @@ export function CheckoutSteps({ currentStepIndex, steps, onStepClick, currentSte
     { id: 'payment', label: 'Payment', number: '3' }
   ]
 
-  // Filter to only show the first 3 steps (exclude thank-you from progress)
+  // Filter to only show steps that exist in the wizard
   const visibleSteps = stepLabels.filter(step => steps.includes(step.id))
-  
-  // Disable navigation if on thank-you page
-  const isOnThankYouPage = currentStepId === 'thank-you'
 
   const handleStepClick = (stepId: string, index: number) => {
-    // Only allow navigation if:
-    // 1. Not on thank-you page
-    // 2. Clicking on a previous step (not future steps)
-    if (!isOnThankYouPage && index < currentStepIndex && onStepClick) {
+    // Only allow navigation to previous steps (not future steps)
+    if (index < currentStepIndex && onStepClick) {
       onStepClick(stepId)
     }
   }
@@ -35,7 +30,7 @@ export function CheckoutSteps({ currentStepIndex, steps, onStepClick, currentSte
   return (
     <div className="flex items-center justify-center gap-2 py-8">
       {visibleSteps.map((step, index) => {
-        const isClickable = !isOnThankYouPage && index < currentStepIndex
+        const isClickable = index < currentStepIndex
         
         return (
           <React.Fragment key={step.id}>

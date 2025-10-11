@@ -9,12 +9,11 @@ import { CheckoutSteps } from "./checkout-steps"
 import { ShoppingBag } from "./steps/shopping-bag"
 import { Shipping } from "./steps/shipping"
 import { Payment } from "./steps/payment"
-import { ThankYou } from "./steps/thank-you"
 import { OrderSummary } from "./steps/order-summary"
 import { useCheckoutForm } from "@lib/hooks/useCheckoutForm"
 import { CheckoutFormProvider } from "~/contexts/checkout-form-context"
 
-type CheckoutStep = "shopping-bag" | "shipping" | "payment" | "thank-you"
+type CheckoutStep = "shopping-bag" | "shipping" | "payment"
 
 export function CheckoutScene() {
   const router = useRouter()
@@ -23,9 +22,8 @@ export function CheckoutScene() {
   const { form, isHydrated, clearSavedData } = useCheckoutForm()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
-  const [orderData, setOrderData] = useState<{ orderId: string; paymentMethod: string } | null>(null)
 
-  const currentStep = ["shopping-bag", "shipping", "payment", "thank-you"].includes(stepFromUrl)
+  const currentStep = ["shopping-bag", "shipping", "payment"].includes(stepFromUrl)
     ? stepFromUrl
     : "shopping-bag"
 
@@ -112,21 +110,12 @@ export function CheckoutScene() {
                         onContinue={nextStep}
                         setIsSubmitting={setIsSubmitting}
                         setSubmitError={setSubmitError}
-                        setOrderData={setOrderData}
                         clearSavedData={clearSavedData}
                       />
                       <OrderSummary onEdit={() => goToStep("shopping-bag")} />
                     </>
                   )}
                 </Wizard.Actions>
-              </div>
-            </Wizard.Step>
-
-            {/* Thank You Step */}
-            <Wizard.Step id="thank-you">
-              <div className="flex gap-4">
-                <ThankYou orderData={orderData} />
-                <OrderSummary showEditButton={false} />
               </div>
             </Wizard.Step>
           </div>

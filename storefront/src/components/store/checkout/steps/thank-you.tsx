@@ -1,27 +1,22 @@
-'use client'
-
-import React, { useEffect } from 'react'
+import React from 'react'
 import { CheckCircle } from 'lucide-react'
-import { useCheckoutFormContext } from '~/contexts/checkout-form-context'
+import { HttpTypes } from '@medusajs/types'
 
 interface ThankYouProps {
-  orderData?: { orderId: string; paymentMethod: string } | null
+  order: HttpTypes.StoreOrder
+  isQuotePayment?: boolean
 }
 
-export function ThankYou({ orderData }: ThankYouProps) {
-  const { form } = useCheckoutFormContext()
-  const formValues = form.getValues()
-
-  const orderNumber = orderData?.orderId || 'PENDING'
-  const paymentMethod = orderData?.paymentMethod || form.watch('paymentMethod')
-  const isQuotePayment = paymentMethod === 'pay_for_quote'
+export function ThankYou({ order, isQuotePayment = false }: ThankYouProps) {
+  const shippingAddress = order.shipping_address
+  const billingAddress = order.billing_address
   return (
     <div className="w-full max-w-[850px]">
       <div className="bg-white rounded-2xl overflow-hidden">
         {/* Header */}
         <div className="border-b border-silver px-16 py-[39px]">
           <p className="text-[16px] font-medium text-[#6f6f6f] mb-2">
-            Order #{orderNumber}
+            Order #{order.display_id || order.id}
           </p>
           <div className="flex items-center gap-2.5">
             <h2 className="text-[32px] font-semibold">Thank you!</h2>
@@ -58,46 +53,48 @@ export function ThankYou({ orderData }: ThankYouProps) {
             <div>
               <h4 className="text-[18px] font-medium mb-2">Contact</h4>
               <div className="text-[12px] text-[#6f6f6f] space-y-1">
-                <p>{formValues.email}</p>
-                <p>{formValues.phone}</p>
+                <p>{order.email}</p>
+                {shippingAddress?.phone && <p>{shippingAddress.phone}</p>}
               </div>
             </div>
 
             {/* Shipping Address */}
-            <div>
-              <h4 className="text-[18px] font-medium mb-2">Shipping Address</h4>
-              <div className="text-[12px] text-[#6f6f6f] space-y-1">
-                <p>{formValues.shippingAddress.firstName} {formValues.shippingAddress.lastName}</p>
-                <p>
-                  {formValues.shippingAddress.address1}, {formValues.shippingAddress.city}, {formValues.shippingAddress.province}, {formValues.shippingAddress.postalCode}, {formValues.shippingAddress.countryCode}
-                </p>
-                {formValues.shippingAddress.phone && <p>Phone: {formValues.shippingAddress.phone}</p>}
+            {shippingAddress && (
+              <div>
+                <h4 className="text-[18px] font-medium mb-2">Shipping Address</h4>
+                <div className="text-[12px] text-[#6f6f6f] space-y-1">
+                  <p>{shippingAddress.first_name} {shippingAddress.last_name}</p>
+                  <p>
+                    {shippingAddress.address_1}
+                    {shippingAddress.address_2 && `, ${shippingAddress.address_2}`}
+                    {`, ${shippingAddress.city}, ${shippingAddress.province}, ${shippingAddress.postal_code}, ${shippingAddress.country_code?.toUpperCase()}`}
+                  </p>
+                  {shippingAddress.phone && <p>Phone: {shippingAddress.phone}</p>}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Billing Address */}
-            <div>
-              <h4 className="text-[18px] font-medium mb-2">Billing Address</h4>
-              <div className="text-[12px] text-[#6f6f6f] space-y-1">
-                {formValues.billingAddressSameAsShipping ? (
-                  <p>Same as shipping address</p>
-                ) : formValues.billingAddress ? (
-                  <>
-                    <p>{formValues.billingAddress.firstName} {formValues.billingAddress.lastName}</p>
-                    <p>
-                      {formValues.billingAddress.address1}, {formValues.billingAddress.city}, {formValues.billingAddress.province}, {formValues.billingAddress.postalCode}, {formValues.billingAddress.countryCode}
-                    </p>
-                  </>
-                ) : (
-                  <p>Same as shipping address</p>
-                )}
+            {billingAddress && (
+              <div>
+                <h4 className="text-[18px] font-medium mb-2">Billing Address</h4>
+                <div className="text-[12px] text-[#6f6f6f] space-y-1">
+                  <p>{billingAddress.first_name} {billingAddress.last_name}</p>
+                  <p>
+                    {billingAddress.address_1}
+                    {billingAddress.address_2 && `, ${billingAddress.address_2}`}
+                    {`, ${billingAddress.city}, ${billingAddress.province}, ${billingAddress.postal_code}, ${billingAddress.country_code?.toUpperCase()}`}
+                  </p>
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Shipping Method */}
             <div>
               <h4 className="text-[18px] font-medium mb-2">Shipping Method</h4>
-              <p className="text-[12px] text-[#6f6f6f]">Standard Courier</p>
+              <p className="text-[12px] text-[#6f6f6f]">
+                {order.shipping_methods?.[0]?.name || 'Standard Courier'}
+              </p>
             </div>
 
             {/* Payment Method */}
