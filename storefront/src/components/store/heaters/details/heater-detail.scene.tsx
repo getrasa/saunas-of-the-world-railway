@@ -33,12 +33,15 @@ interface HeaterDetailSceneProps {
 
 // Helper to convert variant options to a keymap
 const optionsAsKeymap = (variant: HttpTypes.StoreProductVariant) => {
-  return (variant.options || []).reduce((acc: Record<string, string>, varopt: any) => {
-    if (varopt.option?.title && varopt.value) {
-      acc[varopt.option.title] = varopt.value
-    }
-    return acc
-  }, {})
+  return (variant.options || []).reduce(
+    (acc: Record<string, string>, varopt: any) => {
+      if (varopt.option?.title && varopt.value) {
+        acc[varopt.option.title] = varopt.value
+      }
+      return acc
+    },
+    {}
+  )
 }
 
 // Default fallback data
@@ -50,21 +53,23 @@ const DEFAULT_ADVANTAGES = [
   "Low maintenance requirements",
 ]
 
-export function HeaterDetailScene({ 
-  product, 
-  relatedProducts, 
+export function HeaterDetailScene({
+  product,
+  relatedProducts,
   countryCode,
-  accessoryProducts 
+  accessoryProducts,
 }: HeaterDetailSceneProps) {
   const [quantity, setQuantity] = useState(1)
   const [options, setOptions] = useState<Record<string, string>>({})
-  const [accessorySelections, setAccessorySelections] = useState<Record<string, string>>({})
+  const [accessorySelections, setAccessorySelections] = useState<
+    Record<string, string>
+  >({})
   const [isAdding, setIsAdding] = useState(false)
   const { refreshCart, openCart } = useCart()
 
   // Extract product data
   const images = useMemo(() => {
-    const imgs = [product.thumbnail, ...(product.images?.map((img: any) => img.url) || [])]
+    const imgs = product.images?.map(img => img.url) || []
     return imgs.filter(Boolean) as string[]
   }, [product])
 
@@ -216,7 +221,14 @@ export function HeaterDetailScene({
 
     // Multiply by quantity
     return totalPrice * quantity
-  }, [selectedVariant, product.variants, accessorySelections, accessoryProducts, metadata, quantity])
+  }, [
+    selectedVariant,
+    product.variants,
+    accessorySelections,
+    accessoryProducts,
+    metadata,
+    quantity,
+  ])
 
   // Determine stock status
   const stockStatus: StockStatus = useMemo(() => {
@@ -265,9 +277,7 @@ export function HeaterDetailScene({
     setIsAdding(true)
     try {
       // Build list of items to add
-      const items = [
-        { variantId, quantity }
-      ]
+      const items = [{ variantId, quantity }]
 
       // Add selected accessories
       Object.entries(accessorySelections).forEach(([title, selection]) => {
@@ -349,7 +359,9 @@ export function HeaterDetailScene({
 
       // Extract metadata for product card
       const getOptionValue = (title: string) => {
-        const opt = (p.options || []).find((o) => o.title?.toLowerCase() === title.toLowerCase())
+        const opt = (p.options || []).find(
+          (o) => o.title?.toLowerCase() === title.toLowerCase()
+        )
         return opt?.values?.map((v) => v.value).join(" / ") || "—"
       }
 
@@ -364,7 +376,7 @@ export function HeaterDetailScene({
         metadata: {
           "Type Available": getOptionValue("type"),
           "Sauna Size Up To": getOptionValue("sauna size"),
-          "Power": getOptionValue("power"),
+          Power: getOptionValue("power"),
         },
       }
     })
@@ -379,9 +391,15 @@ export function HeaterDetailScene({
 
         <ProductDetailLayout.Grid>
           <ProductDetailLayout.LeftColumn>
-            <HeaterDetailGallery images={images} productName={product.title || "Product"} />
-            
-            <HeaterDetailAccordion advantages={advantages} specifications={specifications} />
+            <HeaterDetailGallery
+              images={images}
+              productName={product.title || "Product"}
+            />
+
+            <HeaterDetailAccordion
+              advantages={advantages}
+              specifications={specifications}
+            />
           </ProductDetailLayout.LeftColumn>
 
           <HeaterDetailInfo
@@ -411,4 +429,3 @@ export function HeaterDetailScene({
     </>
   )
 }
-
