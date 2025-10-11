@@ -12,6 +12,7 @@ export interface HeaterProduct {
   type: string;
   saunaSize: string;
   power: string;
+  variantId?: string;
 }
 
 interface HeaterCardProps {

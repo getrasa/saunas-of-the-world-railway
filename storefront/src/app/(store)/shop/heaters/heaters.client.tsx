@@ -1,24 +1,39 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { StoreHero } from "~/components/store/store-hero";
 import { ProductFilter } from "~/components/store/product-filter";
 import { HeaterCard, type HeaterProduct } from "~/components/store/heater-card";
 import { useCart } from "~/contexts/cart-context";
+import { addToCart } from "@lib/data/cart";
 import { imageUrls } from "~/lib/imageUrls";
 
-export function HeatersClient({ products }: { products: HeaterProduct[] }) {
-  const { addToCart } = useCart();
+export function HeatersClient({ products, countryCode }: { products: HeaterProduct[], countryCode: string }) {
+  const { refreshCart, openCart } = useCart();
+  const [addingProductId, setAddingProductId] = useState<string | null>(null);
 
-  const handleAddToCart = (product: HeaterProduct) => {
-    addToCart({
-      id: product.id,
-      name: `${product.name} - Sauna heater`,
-      description: product.description,
-      price: product.price,
-      quantity: 1,
-      image: product.image,
-    });
+  const handleAddToCart = async (product: HeaterProduct) => {
+    if (!product.variantId) {
+      console.error("No variant ID found for product:", product.id);
+      return;
+    }
+
+    setAddingProductId(product.id);
+    try {
+      await addToCart({
+        variantId: product.variantId,
+        quantity: 1,
+        countryCode,
+      });
+      
+      await refreshCart();
+      openCart();
+    } catch (error) {
+      console.error("Failed to add to cart:", error);
+    } finally {
+      setAddingProductId(null);
+    }
   };
 
   const handleFilterChange = (filters: Record<string, string | null>) => {

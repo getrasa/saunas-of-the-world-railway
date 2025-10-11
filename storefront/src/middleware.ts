@@ -23,10 +23,11 @@ async function getRegionMap() {
       headers: {
         "x-publishable-api-key": PUBLISHABLE_API_KEY!,
       },
-      next: {
-        revalidate: 3600,
-        tags: ["regions"],
-      },
+      // next: {
+      //   revalidate: 3600,
+      //   tags: ["regions"],
+      // },
+      cache: "no-store",
     }).then((res) => res.json())
 
     if (!regions?.length) {

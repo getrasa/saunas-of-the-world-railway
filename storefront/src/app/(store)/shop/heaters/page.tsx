@@ -4,6 +4,9 @@ import { HeatersClient } from "./heaters.client"
 import type { HeaterProduct } from "~/components/store/heater-card"
 import { imageUrls } from "../../../../lib/imageUrls"
 
+
+export const revalidate = 0
+
 export default async function HeatersPage() {
   // Pick a country for now (no country prefix in this route). You can
   // later rewrite this route under /[countryCode]/... to use params.
@@ -161,6 +164,7 @@ export default async function HeatersPage() {
     //   ? ("in-stock" as const)
     //   : ("pre-order" as const),
     stockStatus: "in-stock" as const,
+    variantId: p.variants?.[0]?.id,
     type: (() => {
       const vals =
         ((p as any).options || [])
@@ -186,5 +190,5 @@ export default async function HeatersPage() {
     })(),
   }))
 
-  return <HeatersClient products={mapped} />
+  return <HeatersClient products={mapped} countryCode={countryCode} />
 }

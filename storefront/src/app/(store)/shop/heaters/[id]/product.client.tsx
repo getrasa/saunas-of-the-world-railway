@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import { ChevronLeft, ShoppingCart } from "lucide-react";
 import { ProductGallery } from "~/components/store/product-gallery";
@@ -8,234 +8,216 @@ import { ProductOptions } from "~/components/store/product-options";
 import { QuantitySelector } from "~/components/store/quantity-selector";
 import { ProductInfo } from "~/components/store/product-info";
 import { HeaterCard, type HeaterProduct } from "~/components/store/heater-card";
-import { StockIndicator } from "~/components/store/stock-indicator";
+import { StockIndicator, type StockStatus } from "~/components/store/stock-indicator";
 import { useCart } from "~/contexts/cart-context";
-import { imageUrls } from "~/lib/imageUrls";
 import { addToCart } from "@lib/data/cart";
-import { StoreProduct } from "@medusajs/types";
+import { HttpTypes } from "@medusajs/types";
+import { isEqual } from "lodash";
 
 type ProductClientProps = {
-  title: string | null
-  subtitle: string | null
-  description: string | null
-  images: string[] | null
-  price: number | null
-  product?: StoreProduct
+  product: HttpTypes.StoreProduct
+  relatedProducts: HttpTypes.StoreProduct[]
+  countryCode: string
 }
 
-const relatedProducts: HeaterProduct[] = [
-    {
-      id: "2",
-      name: "EOS Bi-O Mat W",
-      description: "High-quality stainless steel heater with integrated water tank for Finnish and Bio sauna operation.",
-      price: 450,
-      stockStatus: "in-stock",
-      image: imageUrls.heaterProduct2,
-      type: "Wall-Mounting",
-      saunaSize: "8 m³",
-      power: "6.0 kW",
-    },
-    {
-      id: "3",
-      name: "EOS Cubo",
-      description: "Compact cubic design with excellent heat distribution. Premium quality heating elements.",
-      price: 380,
-      stockStatus: "pre-order",
-      image: imageUrls.heaterProduct3,
-      type: "Floor-standing",
-      saunaSize: "6 m³",
-      power: "4.5 kW",
-    },
-    {
-      id: "4",
-      name: "EOS 34.A",
-      description: "Classic sauna heater with robust construction. Ideal for commercial and residential use.",
-      price: 680,
-      stockStatus: "in-stock",
-      image: imageUrls.heaterProduct4,
-      type: "Floor-standing",
-      saunaSize: "12 m³",
-      power: "9.0 kW",
-    },
-    {
-      id: "5",
-      name: "EOS Germanius",
-      description: "Premium tower heater with elegant design. Features advanced air circulation system.",
-      price: 920,
-      stockStatus: "in-stock",
-      image: imageUrls.heaterProduct1,
-      type: "Floor-standing",
-      saunaSize: "16 m³",
-      power: "12.0 kW",
-    },
-    {
-      id: "6",
-      name: "EOS Herkules S60",
-      description: "Heavy-duty commercial heater with superior performance. Built for continuous operation.",
-      price: 1850,
-      stockStatus: "out-of-stock",
-      image: imageUrls.heaterProduct2,
-      type: "Floor-standing",
-      saunaSize: "60 m³",
-      power: "30.0 kW",
-    },
-    {
-      id: "7",
-      name: "EOS Saunadome II",
-      description: "Innovative dome design for maximum stone capacity. Creates authentic löyly steam.",
-      price: 540,
-      stockStatus: "in-stock",
-      image: imageUrls.heaterProduct3,
-      type: "Wall-Mounting",
-      saunaSize: "10 m³",
-      power: "7.5 kW",
-    },
-  ];
+// Helper to convert variant options to a keymap
+const optionsAsKeymap = (variant: HttpTypes.StoreProductVariant) => {
+  return (variant.options || []).reduce((acc: Record<string, string>, varopt: any) => {
+    if (varopt.option?.title && varopt.value) {
+      acc[varopt.option.title] = varopt.value
+    }
+    return acc
+  }, {})
+}
 
-const mockProduct = {
-  id: "1",
-  name: "EOS Picco W",
-  fullName: "EOS Picco W - Sauna heater for small sauna cabins",
-  description:
-    "Very compact, space-saving design. For dry Finnish sauna, recommended for sauna size up to approx. 4,5 m³. Rock store fits approx. 10 kg stones.",
-  includes: "Wall-mounting. 3,5 m connection cable 4 x 1,5 mm²",
-  price: 240,
-  stockStatus: "in-stock" as const,
-  images: [
-    imageUrls.heaterProduct1,
-    imageUrls.heaterProduct2,
-    imageUrls.heaterProduct3,
-    imageUrls.heaterProduct4,
-    imageUrls.heaterProduct1,
-  ],
-  optionGroups: [
-    {
-      title: "Controller (required)",
-      options: [
-        { id: "stainless", label: "No controller", available: true },
-        { id: "matt-black", label: "EmoStyle D", available: true },
-        { id: "anthracite", label: "Compact DP", available: true },
-      ],
-    },
-    {
-      title: "Power Extension Box (required)",
-      options: [
-        { id: "stainless", label: "No box", available: true },
-        { id: "matt-black", label: "PEB 36", available: true },
-      ],
-    },
-    {
-      title: "Rocks",
-      options: [
-        { id: "model-2", label: "No rocks", available: true },
-        { id: "model-1", label: "Add rocks (1x)", available: true },
-      ],
-    },
-    {
-      title: "Choose Power",
-      options: [
-        { id: "3kw", label: "3.0 kW", available: true },
-        { id: "3.5kw", label: "3.5kW", available: true },
-      ],
-    },
-    // {
-    //   title: "Choose exterior designs",
-    //   options: [
-    //     { id: "matt-black", label: "Matt Black", available: true },
-    //     { id: "anthracite", label: "Anthracite Pearl", available: true },
-    //     { id: "stainless", label: "Stainless Steel", available: true },
-    //   ],
-    // },
-    // {
-    //   title: "Choose Model",
-    //   options: [
-    //     { id: "model-1", label: "Model 1", available: true },
-    //     { id: "model-2", label: "Model 2", available: true },
-    //   ],
-    // },
-    // {
-    //   title: "Choose Power",
-    //   options: [
-    //     { id: "3kw", label: "3.0 kW", available: true },
-    //     { id: "3.5kw", label: "3.5kW", available: true },
-    //   ],
-    // },
-  ],
-  advantages: [
-    "German engineering and manufacturing",
-    "5-year warranty on heating elements",
-    "Energy-efficient operation",
-    "Quick heat-up time",
-    "Low maintenance requirements",
-  ],
-};
+// Default fallback data
+const DEFAULT_ADVANTAGES = [
+  "German engineering and manufacturing",
+  "5-year warranty on heating elements",
+  "Energy-efficient operation",
+  "Quick heat-up time",
+  "Low maintenance requirements",
+]
 
-export function ProductClient({ title, subtitle, description, images, price, product }: ProductClientProps) {
-  const [quantity, setQuantity] = useState(1);
-  const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
-  const [isAdding, setIsAdding] = useState(false);
-  const { refreshCart, openCart } = useCart();
+export function ProductClient({ product, relatedProducts, countryCode }: ProductClientProps) {
+  const [quantity, setQuantity] = useState(1)
+  const [options, setOptions] = useState<Record<string, string>>({})
+  const [isAdding, setIsAdding] = useState(false)
+  const { refreshCart, openCart } = useCart()
 
-  const handleAddToCart = async () => {
-    // For now, use the first variant if product exists
-    // In a full implementation, you'd match selectedOptions to the correct variant
-    const variantId = product?.variants?.[0]?.id;
-    
-    if (!variantId) {
-      console.error("No variant ID found");
-      return;
+  // Extract product data
+  const images = useMemo(() => {
+    const imgs = [product.thumbnail, ...(product.images?.map((img: any) => img.url) || [])]
+    return imgs.filter(Boolean) as string[]
+  }, [product])
+
+  // Convert product options to optionGroups format
+  const optionGroups = useMemo(() => {
+    return (product.options || []).map((option) => ({
+      title: option.title || "",
+      options: (option.values || []).map((val) => ({
+        id: val.value || "",
+        label: val.value || "",
+        available: true, // Could be refined based on variant availability
+      })),
+    }))
+  }, [product.options])
+
+  // Auto-select first option if only one variant
+  useEffect(() => {
+    if (product.variants?.length === 1) {
+      const variantOptions = optionsAsKeymap(product.variants[0])
+      setOptions(variantOptions)
+    }
+  }, [product.variants])
+
+  // Find the selected variant based on options
+  const selectedVariant = useMemo(() => {
+    if (!product.variants || product.variants.length === 0) {
+      return undefined
     }
 
-    setIsAdding(true);
+    return product.variants.find((v) => {
+      const variantOptions = optionsAsKeymap(v)
+      return isEqual(variantOptions, options)
+    })
+  }, [product.variants, options])
+
+  // Calculate price (use selected variant or cheapest variant)
+  const price = useMemo(() => {
+    const variant = selectedVariant || product.variants?.[0]
+    const amount = (variant as any)?.calculated_price?.calculated_amount
+    return amount != null ? Math.round(amount) : null
+  }, [selectedVariant, product.variants])
+
+  // Determine stock status
+  const stockStatus: StockStatus = useMemo(() => {
+    const variant = selectedVariant || product.variants?.[0]
+    if (!variant) return "out-of-stock"
+
+    // If we don't manage inventory, assume in stock
+    if (!variant.manage_inventory) return "in-stock"
+
+    // If we allow back orders, consider as pre-order
+    if (variant.allow_backorder) return "pre-order"
+
+    // Check inventory quantity
+    const qty = (variant as any)?.inventory_quantity || 0
+    if (qty > 0) return "in-stock"
+    
+    return "out-of-stock"
+  }, [selectedVariant, product.variants])
+
+  const inStock = stockStatus !== "out-of-stock"
+
+  // Handle add to cart
+  const handleAddToCart = async () => {
+    const variantId = selectedVariant?.id || product.variants?.[0]?.id
+    
+    if (!variantId) {
+      console.error("No variant ID found")
+      return
+    }
+
+    setIsAdding(true)
     try {
       await addToCart({
         variantId,
         quantity,
-        countryCode: "au", // TODO: Get from context or URL
-      });
+        countryCode,
+      })
       
-      // Refresh cart and open drawer to show the added item
-      await refreshCart();
-      openCart();
+      await refreshCart()
+      openCart()
     } catch (error) {
-      console.error("Failed to add to cart:", error);
+      console.error("Failed to add to cart:", error)
     } finally {
-      setIsAdding(false);
+      setIsAdding(false)
     }
-  };
+  }
+
+  // Extract advantages from metadata or use defaults
+  const advantages = useMemo(() => {
+    const meta = product.metadata as any
+    if (meta?.advantages && Array.isArray(meta.advantages)) {
+      return meta.advantages as string[]
+    }
+    return DEFAULT_ADVANTAGES
+  }, [product.metadata])
+
+  // Extract specifications from metadata
+  const specifications = useMemo(() => {
+    const meta = product.metadata as any
+    if (meta?.specifications && typeof meta.specifications === "object") {
+      return meta.specifications as Record<string, string>
+    }
+    // Return empty object if no specifications in metadata
+    return {}
+  }, [product.metadata])
+
+  // Convert related products to HeaterProduct format
+  const relatedHeaterProducts: HeaterProduct[] = useMemo(() => {
+    return relatedProducts.map((p) => {
+      const variant = p.variants?.[0]
+      const amount = (variant as any)?.calculated_price?.calculated_amount
+      const qty = (variant as any)?.inventory_quantity || 0
+      
+      let status: StockStatus = "in-stock"
+      if (!variant?.manage_inventory || variant?.allow_backorder) {
+        status = "in-stock"
+      } else if (qty <= 0) {
+        status = "out-of-stock"
+      }
+
+      // Extract type, sauna size, and power from product options
+      const getOptionValue = (title: string) => {
+        const opt = (p.options || []).find((o) => o.title?.toLowerCase() === title.toLowerCase())
+        return opt?.values?.map((v) => v.value).join(" / ") || "—"
+      }
+
+      return {
+        id: p.id!,
+        name: p.title!,
+        description: p.description || "",
+        price: amount != null ? Math.round(amount) : 0,
+        stockStatus: status,
+        image: p.thumbnail || "",
+        type: getOptionValue("type"),
+        saunaSize: getOptionValue("sauna size"),
+        power: getOptionValue("power"),
+        variantId: variant?.id,
+      }
+    })
+  }, [relatedProducts])
 
   const productInfoSections = [
     {
       title: "Your Advantages",
       content: (
         <ul className="list-disc space-y-2 pl-5 text-sm text-gray-600">
-          {mockProduct.advantages.map((advantage, index) => (
+          {advantages.map((advantage, index) => (
             <li key={index}>{advantage}</li>
           ))}
         </ul>
       ),
     },
-    {
-      title: "Technical Specifications",
-      content: (
-        <dl className="space-y-2 text-sm">
-          {Object.entries({
-            "Power Output": "3.0 - 3.5 kW",
-            "Sauna Room Size": "3 - 4.5 m³",
-            Dimensions: "280 x 375 x 280 mm",
-            Weight: "11 kg",
-            "Stone Capacity": "10 kg",
-            "Electrical Connection": "400V 3N~",
-            "Control Unit": "Not included (sold separately)",
-          }).map(([key, value]) => (
-            <div key={key} className="flex justify-between">
-              <dt className="font-medium text-gray-600">{key}:</dt>
-              <dd className="text-gray-900">{value}</dd>
-            </div>
-          ))}
-        </dl>
-      ),
-    },
+    ...(Object.keys(specifications).length > 0
+      ? [
+          {
+            title: "Technical Specifications",
+            content: (
+              <dl className="space-y-2 text-sm">
+                {Object.entries(specifications).map(([key, value]) => (
+                  <div key={key} className="flex justify-between">
+                    <dt className="font-medium text-gray-600">{key}:</dt>
+                    <dd className="text-gray-900">{value}</dd>
+                  </div>
+                ))}
+              </dl>
+            ),
+          },
+        ]
+      : []),
     {
       title: "PDF Downloads",
       content: (
@@ -252,15 +234,15 @@ export function ProductClient({ title, subtitle, description, images, price, pro
         </div>
       ),
     },
-  ];
+  ]
 
-  const getSelectedOptionsString = () => "";
+  const getSelectedOptionsString = () => ""
 
   return (
     <div className="min-h-screen bg-white">
       <div className="mx-auto max-w-[1512px] px-6 py-8">
         <nav className="mb-6 flex items-center gap-2 text-xs text-gray-500">
-          <Link href="/shop/heaters" className="hover:text-gray-700">
+          <Link href="/shop" className="hover:text-gray-700">
             Products
           </Link>
           <span>&gt;</span>
@@ -268,7 +250,7 @@ export function ProductClient({ title, subtitle, description, images, price, pro
             Sauna Heaters
           </Link>
           <span>&gt;</span>
-          <span className="font-medium text-black">{title ?? mockProduct.name}</span>
+          <span className="font-medium text-black">{product.title}</span>
         </nav>
 
         <Link
@@ -282,8 +264,8 @@ export function ProductClient({ title, subtitle, description, images, price, pro
         <div className="grid gap-12 lg:grid-cols-[737px_1fr]">
           <div className="flex flex-col gap-12">
             <ProductGallery
-              images={images ?? mockProduct.images}
-              productName={title ?? mockProduct.name}
+              images={images}
+              productName={product.title || "Product"}
               selectedOptions={getSelectedOptionsString()}
             />
             <div className="w-full">
@@ -294,24 +276,37 @@ export function ProductClient({ title, subtitle, description, images, price, pro
           <div className="flex flex-col gap-8">
             <div>
               <h1 className="mb-6 text-3xl font-semibold">
-                <span className="text-[#C5AF71]">{title ?? mockProduct.name}</span>
-                <span className="text-black">{" "}- {subtitle ?? "Sauna heater for small sauna cabins"}</span>
+                <span className="text-[#C5AF71]">{product.title}</span>
+                {product.subtitle && (
+                  <span className="text-black"> - {product.subtitle}</span>
+                )}
               </h1>
-              <p className="mb-4 text-gray-600">{description ?? mockProduct.description}</p>
-              <p className="mb-6 text-black">Include: Wall-mounting. 3,5 m connection cable 4 x 1,5 mm²</p>
+              {product.description && (
+                <p className="mb-4 text-gray-600">{product.description}</p>
+              )}
+              {(product.metadata as any)?.includes && (
+                <p className="mb-6 text-black">
+                  Include: {(product.metadata as any).includes}
+                </p>
+              )}
 
               <div className="flex items-center gap-4">
-                <span className="text-3xl font-semibold">${price ?? mockProduct.price}</span>
-                <StockIndicator status={mockProduct.stockStatus} />
+                {price != null && (
+                  <span className="text-3xl font-semibold">${price}</span>
+                )}
+                <StockIndicator status={stockStatus} />
               </div>
             </div>
 
-            <div className="h-px bg-gray-200" />
-
-            <ProductOptions
-              optionGroups={mockProduct.optionGroups}
-              onSelectionChange={setSelectedOptions}
-            />
+            {optionGroups.length > 0 && (
+              <>
+                <div className="h-px bg-gray-200" />
+                <ProductOptions
+                  optionGroups={optionGroups}
+                  onSelectionChange={setOptions}
+                />
+              </>
+            )}
 
             <div className="h-px bg-gray-200" />
 
@@ -324,14 +319,18 @@ export function ProductClient({ title, subtitle, description, images, price, pro
 
             <button
               onClick={handleAddToCart}
-              disabled={isAdding}
-              className="flex h-12 w-full items-center justify-center gap-3 rounded-3xl bg-black text-white transition-colors hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={isAdding || !inStock || !selectedVariant}
+              className="flex h-12 w-full items-center justify-center gap-3 rounded-3xl bg-black text-white transition-colors hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isAdding ? (
                 <>
                   <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
                   <span className="font-semibold">Adding...</span>
                 </>
+              ) : !selectedVariant && optionGroups.length > 0 ? (
+                <span className="font-semibold">Select Options</span>
+              ) : !inStock ? (
+                <span className="font-semibold">Out of Stock</span>
               ) : (
                 <>
                   <ShoppingCart className="h-5 w-5" />
@@ -343,19 +342,23 @@ export function ProductClient({ title, subtitle, description, images, price, pro
         </div>
       </div>
 
-      <div className="bg-neutral-100 px-6 py-16 mt-16">
-        <div className="mx-auto max-w-[1512px]">
-          <h2 className="mb-12 text-3xl font-semibold">You may also interested in</h2>
+      {relatedHeaterProducts.length > 0 && (
+        <div className="mt-16 bg-neutral-100 px-6 py-16">
+          <div className="mx-auto max-w-[1512px]">
+            <h2 className="mb-12 text-3xl font-semibold">You may also be interested in</h2>
 
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {relatedProducts.map((product) => (
-              <HeaterCard key={product.id} product={product} onAddToCart={() => {}} />
-            ))}
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {relatedHeaterProducts.map((prod) => (
+                <Link key={prod.id} href={`/shop/heaters/${prod.id}`}>
+                  <HeaterCard product={prod} onAddToCart={() => {}} />
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
-  );
+  )
 }
 
 

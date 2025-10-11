@@ -1,11 +1,10 @@
 import { sdk } from "@lib/config"
 import { HttpTypes } from "@medusajs/types"
-import { cache } from "react"
 import { getRegion } from "./regions"
 import { SortOptions } from "@modules/store/components/refinement-list/sort-products"
 import { sortProducts } from "@lib/util/sort-products"
 
-export const getProductsById = cache(async function ({
+export async function getProductsById({
   ids,
   regionId,
 }: {
@@ -22,9 +21,9 @@ export const getProductsById = cache(async function ({
       { next: { tags: ["products"] } }
     )
     .then(({ products }) => products)
-})
+}
 
-export const getProductByHandle = cache(async function (
+export async function getProductByHandle(
   handle: string,
   regionId: string
 ) {
@@ -38,9 +37,9 @@ export const getProductByHandle = cache(async function (
       { next: { tags: ["products"] } }
     )
     .then(({ products }) => products[0])
-})
+}
 
-export const getProductsList = cache(async function ({
+export async function getProductsList({
   pageParam = 1,
   queryParams,
   countryCode,
@@ -87,13 +86,13 @@ export const getProductsList = cache(async function ({
         queryParams,
       }
     })
-})
+}
 
 /**
- * This will fetch 100 products to the Next.js cache and sort them based on the sortBy parameter.
+ * This will fetch 100 products and sort them based on the sortBy parameter.
  * It will then return the paginated products based on the page and limit parameters.
  */
-export const getProductsListWithSort = cache(async function ({
+export async function getProductsListWithSort({
   page = 0,
   queryParams,
   sortBy = "created_at",
@@ -137,4 +136,4 @@ export const getProductsListWithSort = cache(async function ({
     nextPage,
     queryParams,
   }
-})
+}
