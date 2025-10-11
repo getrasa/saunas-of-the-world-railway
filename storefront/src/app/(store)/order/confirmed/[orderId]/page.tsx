@@ -5,7 +5,6 @@ import { OrderSummaryConfirmation } from "~/components/store/checkout"
 import { retrieveOrder } from "@lib/data/orders"
 import { enrichLineItems } from "@lib/data/cart"
 import { HttpTypes } from "@medusajs/types"
-import { NavigationBar } from "~/components/ui/navigation"
 
 export const metadata: Metadata = {
   title: "Order Confirmed",
@@ -52,17 +51,14 @@ export default async function OrderConfirmationPage({
                          paymentProvider.includes('manual')
 
   return (
-    <>
-      <NavigationBar isStore={true} />
-      <div className="min-h-screen bg-neutral-100 w-full pb-16 pt-8">
-        <div className="mx-auto max-w-[1512px] px-[52px]">
-          <div className="flex gap-4 justify-center">
-            <ThankYou order={order} isQuotePayment={isQuotePayment} />
-            <OrderSummaryConfirmation order={order} />
-          </div>
+    <div className="min-h-screen bg-neutral-100 w-full pb-16 pt-8">
+      <div className="mx-auto max-w-[1512px] px-[52px]">
+        <div className="flex gap-4 justify-center">
+          <ThankYou order={order} isQuotePayment={isQuotePayment} />
+          <OrderSummaryConfirmation order={order} />
         </div>
       </div>
-    </>
+    </div>
   )
 }
 

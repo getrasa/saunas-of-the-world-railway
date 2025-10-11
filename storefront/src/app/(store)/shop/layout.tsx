@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(getBaseURL()),
 }
 
-export default function RootLayout(props: { children: React.ReactNode }) {
+export default function ShopLayout(props: { children: React.ReactNode }) {
   return (
     <>
       <NavigationBar isStore={true} />
@@ -15,3 +15,4 @@ export default function RootLayout(props: { children: React.ReactNode }) {
     </>
   )
 }
+

@@ -9,8 +9,6 @@ import { useCheckoutFormContext } from '~/contexts/checkout-form-context'
 import { loadStripe } from '@stripe/stripe-js'
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js'
 import { updateCart, initiatePaymentSession, placeOrder, setShippingMethod } from '@lib/data/cart'
-import { calculateShipping } from '@lib/services/shipping'
-import { listCartShippingMethods } from '@lib/data/fulfillment'
 
 interface PaymentProps {
   onContinue: () => void
@@ -54,18 +52,10 @@ function PaymentForm({
   
   const [cardComplete, setCardComplete] = useState(false)
   const [cardError, setCardError] = useState<string | null>(null)
-  const [shippingCost, setShippingCost] = useState(0)
 
   const paymentMethod = watch('paymentMethod')
   const email = watch('email')
   const phone = watch('phone')
-
-  // Calculate shipping cost on mount
-  useEffect(() => {
-    calculateShipping().then((shipping) => {
-      setShippingCost(shipping.cost)
-    })
-  }, [])
 
   // Clear errors when payment method changes
   useEffect(() => {
@@ -73,7 +63,7 @@ function PaymentForm({
     setCardError(null)
   }, [paymentMethod, setSubmitError])
 
-  const total = (cart?.total || 0) + shippingCost
+  const total = cart?.total || 0
   const currencyCode = cart?.currency_code || 'USD'
 
   const handleSubmit = async () => {
@@ -143,20 +133,17 @@ function PaymentForm({
         throw new Error('Cart not found')
       }
 
-      // Get available shipping options
-      const shippingOptions = await listCartShippingMethods(cart.id)
+      // Get the selected shipping method from form
+      const selectedShippingMethodId = formData.shippingMethodId
       
-      if (!shippingOptions || shippingOptions.length === 0) {
-        throw new Error('No shipping methods available')
+      if (!selectedShippingMethodId) {
+        throw new Error('Please select a shipping method')
       }
-
-      // Select the first available shipping option (or you could let user choose)
-      const selectedShippingOption = shippingOptions[0]
       
       // Add shipping method to cart
       await setShippingMethod({
         cartId: cart.id,
-        shippingMethodId: selectedShippingOption.id,
+        shippingMethodId: selectedShippingMethodId,
       })
 
       // Refresh cart after adding shipping method

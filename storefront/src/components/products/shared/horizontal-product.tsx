@@ -5,21 +5,24 @@ import { useRouter } from "next/navigation";
 import SquareButton from "~/components/ui/buttons/square-button";
 import Image from "next/image";
 
+type ProductSideType = "left" | "right";
+
 interface HorizontalProductProps {
   title: string;
   description: string;
   imagePath: string;
   imageAlt: string;
   buttonHref?: string;
-  variant?: ProductSide;
+  variant?: ProductSideType;
   stretchHorizontally?: boolean;
   onClick?: () => void;
 }
 
-export enum ProductSide {
-  Left = "left",
-  Right = "right",
-}
+// Export ProductSide as a plain object (not const)
+export const ProductSide = {
+  Left: "left",
+  Right: "right",
+} as const;
 
 const HorizontalProduct: FC<HorizontalProductProps> = ({
   title,
@@ -27,12 +30,12 @@ const HorizontalProduct: FC<HorizontalProductProps> = ({
   imagePath,
   imageAlt,
   buttonHref,
-  variant = ProductSide.Left,
+  variant = "left",
   stretchHorizontally = false,
   onClick,
 }): JSX.Element => {
   const router = useRouter();
-  const isLeft = variant === ProductSide.Left;
+  const isLeft = variant === "left";
 
   const ProductImage = (
     <div className="h-fit w-full md:w-1/2">

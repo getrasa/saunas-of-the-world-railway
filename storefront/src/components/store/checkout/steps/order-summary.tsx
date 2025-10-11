@@ -4,7 +4,8 @@ import React, { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { useCart } from '~/contexts/cart-context'
 import { convertToLocale } from '@lib/util/money'
-import { calculateShipping } from '@lib/services/shipping'
+import { listCartShippingMethods } from '@lib/data/fulfillment'
+import { useCheckoutFormContext } from '~/contexts/checkout-form-context'
 
 interface OrderSummaryProps {
   showEditButton?: boolean
@@ -16,14 +17,30 @@ export function OrderSummary({
   onEdit
 }: OrderSummaryProps) {
   const { items, cart } = useCart()
+  const { form } = useCheckoutFormContext()
+  const selectedShippingMethodId = form.watch('shippingMethodId')
   const [shippingFee, setShippingFee] = useState(0)
 
-  // Calculate shipping on mount
+  // Get shipping fee from selected method
   useEffect(() => {
-    calculateShipping().then((shipping) => {
-      setShippingFee(shipping.cost)
-    })
-  }, [])
+    async function loadShippingFee() {
+      if (!cart?.id || !selectedShippingMethodId) {
+        setShippingFee(0)
+        return
+      }
+
+      try {
+        const options = await listCartShippingMethods(cart.id)
+        const selectedOption = options?.find(opt => opt.id === selectedShippingMethodId)
+        setShippingFee(selectedOption?.amount || 0)
+      } catch (error) {
+        console.error('Failed to load shipping fee:', error)
+        setShippingFee(0)
+      }
+    }
+
+    loadShippingFee()
+  }, [cart?.id, selectedShippingMethodId])
 
   const subtotal = cart?.subtotal || 0
   const total = subtotal + shippingFee

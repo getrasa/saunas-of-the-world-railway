@@ -79,7 +79,7 @@ export function HeaterDetailScene({
   // Convert product options to optionGroups format (for main product options like Power)
   const mainOptionGroups = useMemo(() => {
     return (product.options || []).map((option) => ({
-      title: option.title || "",
+      title: option.title?.toLowerCase() === "power" ? "Choose Power" : option.title || "",
       options: (option.values || []).map((val) => ({
         id: val.value || "",
         label: val.value || "",
@@ -159,9 +159,9 @@ export function HeaterDetailScene({
     return groups
   }, [metadata, accessoryProducts])
 
-  // Combine all option groups
+  // Combine all option groups (accessory options first, then Power at the bottom)
   const optionGroups = useMemo(() => {
-    return [...mainOptionGroups, ...accessoryOptionGroups]
+    return [...accessoryOptionGroups, ...mainOptionGroups]
   }, [mainOptionGroups, accessoryOptionGroups])
 
   // Initialize accessory selections with "none" defaults
@@ -257,7 +257,9 @@ export function HeaterDetailScene({
       ) {
         accessories[title] = value
       } else {
-        mainOptions[title] = value
+        // Map "Choose Power" back to "Power" for variant matching
+        const optionKey = title === "Choose Power" ? "Power" : title
+        mainOptions[optionKey] = value
       }
     })
 

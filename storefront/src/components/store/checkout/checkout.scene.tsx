@@ -28,7 +28,7 @@ export function CheckoutScene() {
     : "shopping-bag"
 
   const handleStepChange = (step: string) => {
-    router.push(`/shop/checkout?step=${step}`)
+    router.push(`/order/checkout?step=${step}`)
   }
 
   // Don't render until form is hydrated from localStorage

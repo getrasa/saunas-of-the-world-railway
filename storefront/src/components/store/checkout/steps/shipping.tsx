@@ -1,12 +1,15 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Input } from '@lib/components/ui/input'
 import { Checkbox } from '@lib/components/ui/checkbox'
 import { Button } from '@lib/components/ui/button'
 import { useCheckoutFormContext } from '~/contexts/checkout-form-context'
 import { AddressAutocomplete } from '../components/address-autocomplete'
 import { useCart } from '~/contexts/cart-context'
+import { listCartShippingMethods } from '@lib/data/fulfillment'
+import { convertToLocale } from '@lib/util/money'
+import { HttpTypes } from '@medusajs/types'
 
 interface ShippingProps {
   onContinue: () => void
@@ -16,14 +19,42 @@ export function Shipping({ onContinue }: ShippingProps) {
   const { form, isSubmitting } = useCheckoutFormContext()
   const { register, watch, setValue, formState: { errors }, trigger } = form
   const { cart } = useCart()
+  const [shippingOptions, setShippingOptions] = useState<HttpTypes.StoreCartShippingOption[]>([])
+  const [loadingOptions, setLoadingOptions] = useState(false)
 
   const billingAddressSameAsShipping = watch('billingAddressSameAsShipping')
   const safeToLeave = watch('safeToLeave')
   const shippingAddress1 = watch('shippingAddress.address1')
   const billingAddress1 = watch('billingAddress.address1') || ''
+  const selectedShippingMethodId = watch('shippingMethodId')
   
   // Get available countries from cart region
   const availableCountries = cart?.region?.countries || []
+
+  // Fetch shipping options when cart is available
+  useEffect(() => {
+    async function loadShippingOptions() {
+      if (!cart?.id) return
+      
+      setLoadingOptions(true)
+      try {
+        const options = await listCartShippingMethods(cart.id)
+        if (options && options.length > 0) {
+          setShippingOptions(options)
+          // Auto-select first option if none selected
+          if (!selectedShippingMethodId) {
+            setValue('shippingMethodId', options[0].id)
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load shipping options:', error)
+      } finally {
+        setLoadingOptions(false)
+      }
+    }
+
+    loadShippingOptions()
+  }, [cart?.id, selectedShippingMethodId, setValue])
 
   const handleContinue = async () => {
     // Validate shipping step fields
@@ -35,6 +66,7 @@ export function Shipping({ onContinue }: ShippingProps) {
       'shippingAddress.postalCode',
       'shippingAddress.province',
       'shippingAddress.countryCode',
+      'shippingMethodId',
       'billingAddressSameAsShipping',
       ...(!billingAddressSameAsShipping ? [
         'billingAddress.firstName',
@@ -287,10 +319,56 @@ export function Shipping({ onContinue }: ShippingProps) {
             )}
           </div>
 
+          {/* Shipping Options Section */}
+          <div className="space-y-[26px] w-[708px]">
+            <h4 className="text-[16px] font-medium">Shipping Method</h4>
+            
+            {loadingOptions ? (
+              <div className="text-[16px] text-[#6f6f6f]">Loading shipping options...</div>
+            ) : shippingOptions.length === 0 ? (
+              <div className="text-[16px] text-[#6f6f6f]">No shipping options available</div>
+            ) : (
+              <div className="space-y-3">
+                {shippingOptions.map((option) => (
+                  <label
+                    key={option.id}
+                    className={`flex items-center justify-between p-4 border-2 rounded-lg cursor-pointer transition-colors ${
+                      selectedShippingMethodId === option.id
+                        ? 'border-[#C5AF71] bg-[#C5AF71]/5'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <div className="flex items-center gap-4">
+                      <input
+                        type="radio"
+                        value={option.id}
+                        checked={selectedShippingMethodId === option.id}
+                        onChange={(e) => setValue('shippingMethodId', e.target.value)}
+                        className="w-5 h-5 text-[#C5AF71] focus:ring-[#C5AF71]"
+                      />
+                      <div>
+                        <p className="text-[16px] font-medium">{option.name}</p>
+                      </div>
+                    </div>
+                    <div className="text-[16px] font-semibold">
+                      {convertToLocale({ 
+                        amount: option.amount || 0, 
+                        currency_code: cart?.currency_code || 'USD' 
+                      })}
+                    </div>
+                  </label>
+                ))}
+              </div>
+            )}
+            {errors.shippingMethodId && (
+              <p className="text-red-500 text-sm">{errors.shippingMethodId.message}</p>
+            )}
+          </div>
+
           {/* Continue Button */}
           <Button
             onClick={handleContinue}
-            disabled={isSubmitting}
+            disabled={isSubmitting || loadingOptions}
             className="w-full h-[49px] bg-black hover:bg-gray-800 text-white text-[16px] font-semibold rounded-[24px] disabled:opacity-50"
           >
             Continue to Payment

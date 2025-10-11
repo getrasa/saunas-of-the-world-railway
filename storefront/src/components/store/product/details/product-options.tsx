@@ -1,6 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 
 interface Option {
   id: string;
@@ -19,7 +22,24 @@ interface ProductOptionsProps {
 }
 
 export function ProductOptions({ optionGroups, onSelectionChange }: ProductOptionsProps) {
-  const [selections, setSelections] = useState<Record<string, string>>(() => {
+  const hasNotifiedInitial = useRef(false);
+
+  // Build dynamic schema based on option groups
+  const schema = useMemo(
+    () =>
+      z.object(
+        optionGroups.reduce((acc, group) => {
+          acc[group.title] = z.string().min(1, `Please select ${group.title}`);
+          return acc;
+        }, {} as Record<string, z.ZodString>)
+      ),
+    [optionGroups]
+  );
+
+  type FormValues = z.infer<typeof schema>;
+
+  // Calculate initial values (first available option for each group)
+  const initialValues = useMemo((): FormValues => {
     const initial: Record<string, string> = {};
     optionGroups.forEach((group) => {
       const firstAvailable = group.options.find((opt) => opt.available);
@@ -27,13 +47,31 @@ export function ProductOptions({ optionGroups, onSelectionChange }: ProductOptio
         initial[group.title] = firstAvailable.id;
       }
     });
-    return initial;
+    return initial as FormValues;
+  }, [optionGroups]);
+
+  const { watch, setValue } = useForm<FormValues>({
+    resolver: zodResolver(schema),
+    defaultValues: initialValues,
   });
 
+  const formValues = watch();
+
+  // Notify parent of initial values once on mount
+  useEffect(() => {
+    if (!hasNotifiedInitial.current) {
+      onSelectionChange?.(initialValues);
+      hasNotifiedInitial.current = true;
+    }
+  }, [initialValues, onSelectionChange]);
+
   const handleSelection = (groupTitle: string, optionId: string) => {
-    const newSelections = { ...selections, [groupTitle]: optionId };
-    setSelections(newSelections);
-    onSelectionChange?.(newSelections);
+    setValue(groupTitle, optionId, { shouldValidate: true });
+    
+    // Get the updated values and notify parent
+    const currentValues = watch();
+    const updatedValues = { ...currentValues, [groupTitle]: optionId };
+    onSelectionChange?.(updatedValues);
   };
 
   return (
@@ -45,10 +83,11 @@ export function ProductOptions({ optionGroups, onSelectionChange }: ProductOptio
             {group.options.map((option) => (
               <button
                 key={option.id}
+                type="button"
                 onClick={() => option.available && handleSelection(group.title, option.id)}
                 disabled={!option.available}
                 className={`rounded-xl px-6 py-2 text-xs transition-colors ${
-                  selections[group.title] === option.id
+                  formValues[group.title] === option.id
                     ? "bg-[#C5AF71] text-white"
                     : option.available
                     ? "bg-gray-200 text-gray-700 hover:bg-gray-300"

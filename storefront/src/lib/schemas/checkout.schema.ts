@@ -24,6 +24,9 @@ export const checkoutFormSchema = z.object({
   // Shipping address
   shippingAddress: addressSchema,
   
+  // Shipping method
+  shippingMethodId: z.string().min(1, "Please select a shipping method"),
+  
   // Contact info
   email: z.string().email("Please enter a valid email address"),
   phone: z.string().min(1, "Phone number is required"),
@@ -57,6 +60,7 @@ export type CheckoutFormData = z.infer<typeof checkoutFormSchema>
 // Individual step schemas for progressive validation
 export const shippingStepSchema = checkoutFormSchema.pick({
   shippingAddress: true,
+  shippingMethodId: true,
   billingAddressSameAsShipping: true,
   billingAddress: true,
   safeToLeave: true,

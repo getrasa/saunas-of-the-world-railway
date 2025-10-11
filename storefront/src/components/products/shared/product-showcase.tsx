@@ -1,14 +1,13 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import SquareButton from "~/components/ui/buttons/square-button";
 
-export enum ProductSide {
-  Left = "left",
-  Right = "right",
-}
+type ProductSideType = "left" | "right";
 
 interface ProductShowcaseProps {
-  variant?: ProductSide;
+  variant?: ProductSideType;
   title: string;
   description: string;
   imagePath: string;
@@ -17,14 +16,14 @@ interface ProductShowcaseProps {
 }
 
 export const ProductShowcase = ({
-  variant = ProductSide.Left,
+  variant = "left",
   title,
   description,
   imagePath,
   imageAlt,
   buttonHref,
 }: ProductShowcaseProps) => {
-  const isLeft = variant === ProductSide.Left;
+  const isLeft = variant === "left";
 
   const ProductImage = (
     <div className="h-fit w-full bg-black md:w-1/2">

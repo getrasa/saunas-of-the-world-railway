@@ -5,7 +5,7 @@ import ContactUs from "~/components/ui/contact-us/contact-us";
 import { HealthWellbeing } from "../shared/health-wellbeing";
 import React from "react";
 import ProductHero from "../shared/product-hero";
-import HorizontalProduct, { ProductSide } from "../shared/horizontal-product";
+import HorizontalProduct from "../shared/horizontal-product";
 import { imageUrls } from "~/lib/imageUrls";
 
 export interface InfraredSceneProps {}
@@ -16,7 +16,7 @@ export const InfraredScene: React.FC<InfraredSceneProps> = () => {
       <ProductHero title="Infrared" imagePath={imageUrls.infraredHero} />
       <div className="h-[50px]" />
       <HorizontalProduct
-        variant={ProductSide.Left}
+        variant="left"
         title="CUSTOM-MADE INFRARED ROOMS"
         description="Elevate your relaxation experience with our Infrared Saunas, where your
             vision meets our expert craftsmanship. Craft your dream sanctuary with
@@ -27,7 +27,7 @@ export const InfraredScene: React.FC<InfraredSceneProps> = () => {
         buttonHref="/gallery?category=infrared"
       />
       <HorizontalProduct
-        variant={ProductSide.Right}
+        variant="right"
         title="PREFARICATED INFRARED ROOMS"
         description="Elevate your home with sophistication and simplicity through our premade
             Hemlock Infrared Saunas. Embrace a touch of class as the natural beauty
@@ -40,7 +40,7 @@ export const InfraredScene: React.FC<InfraredSceneProps> = () => {
         buttonHref="/gallery?category=infrared"
       />
       <HorizontalProduct
-        variant={ProductSide.Left}
+        variant="left"
         title="IR PANELS AND CONTROL UNITS"
         description="Infrared radiator for private and commercial sauna and IR warming cabins.
             Full spectre IR radiator with durable housing, pre-mounted cable

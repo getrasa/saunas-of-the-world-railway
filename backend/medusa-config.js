@@ -51,6 +51,12 @@ const medusaConfig = {
   },
   modules: [
     {
+      resolve: "@medusajs/medusa/cache-inmemory",
+      options: {
+        ttl: 0  // Disable caching by setting TTL to 0 seconds
+      }
+    },
+    {
       key: Modules.FILE,
       resolve: '@medusajs/file',
       options: {

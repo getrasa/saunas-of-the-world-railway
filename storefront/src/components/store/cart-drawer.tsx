@@ -2,9 +2,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Check, ShoppingCart, X } from "lucide-react";
+import { Check, ShoppingCart, X, Minus, Plus, Trash2 } from "lucide-react";
 import { useCart } from "~/contexts/cart-context";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
   Sheet,
   SheetContent,
@@ -14,6 +14,7 @@ import {
 } from "~/components/ui/sheet";
 import { convertToLocale } from "@lib/util/money";
 import { HttpTypes } from "@medusajs/types";
+import { updateLineItem, deleteLineItem } from "@lib/data/cart";
 
 type CartItem = HttpTypes.StoreCartLineItem;
 
@@ -34,7 +35,8 @@ function isHeaterProduct(item: CartItem): boolean {
 }
 
 export function CartDrawer() {
-  const { items, isOpen, closeCart, cart } = useCart();
+  const { items, isOpen, closeCart, cart, refreshCart } = useCart();
+  const [updatingItems, setUpdatingItems] = useState<Set<string>>(new Set());
 
   // Sort items: heaters first, then accessories
   const sortedItems = useMemo(() => {
@@ -47,6 +49,44 @@ export function CartDrawer() {
       return 0;
     });
   }, [items]);
+
+  const handleUpdateQuantity = async (lineId: string, newQuantity: number) => {
+    if (newQuantity < 0) return;
+    
+    setUpdatingItems(prev => new Set(prev).add(lineId));
+    try {
+      if (newQuantity === 0) {
+        await deleteLineItem(lineId);
+      } else {
+        await updateLineItem({ lineId, quantity: newQuantity });
+      }
+      await refreshCart();
+    } catch (error) {
+      console.error("Failed to update quantity:", error);
+    } finally {
+      setUpdatingItems(prev => {
+        const next = new Set(prev);
+        next.delete(lineId);
+        return next;
+      });
+    }
+  };
+
+  const handleRemoveItem = async (lineId: string) => {
+    setUpdatingItems(prev => new Set(prev).add(lineId));
+    try {
+      await deleteLineItem(lineId);
+      await refreshCart();
+    } catch (error) {
+      console.error("Failed to remove item:", error);
+    } finally {
+      setUpdatingItems(prev => {
+        const next = new Set(prev);
+        next.delete(lineId);
+        return next;
+      });
+    }
+  };
 
   return (
     <Sheet open={isOpen} onOpenChange={closeCart}>
@@ -72,39 +112,73 @@ export function CartDrawer() {
           <div className="flex-1 overflow-y-auto px-8 py-6">
             {sortedItems.length > 0 ? (
               <div className="space-y-6">
-                {sortedItems.map((item) => (
-                  <div key={item.id} className="flex gap-6 border-b border-gray-200 pb-6 last:border-b-0">
-                    <div className="relative h-[120px] w-[120px] flex-shrink-0 bg-gray-50">
-                      <Image
-                        src={item.variant?.product?.thumbnail || item.thumbnail || ""}
-                        alt={item.title || "Product"}
-                        fill
-                        className="object-contain"
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="mb-2 text-base">
-                        <span className="font-medium text-[#C5AF71]">
-                          {item.variant?.product?.title || item.title}
-                        </span>
-                      </h3>
-                      {item.variant?.title && item.variant?.title !== "Default" && (
-                        <p className="mb-2 text-sm text-gray-600">
-                          {item.variant.title}
+                {sortedItems.map((item) => {
+                  const isUpdating = updatingItems.has(item.id);
+                  return (
+                    <div key={item.id} className="flex gap-6 border-b border-gray-200 pb-6 last:border-b-0">
+                      <div className="relative h-[120px] w-[120px] flex-shrink-0 bg-gray-50">
+                        <Image
+                          src={item.variant?.product?.thumbnail || item.thumbnail || ""}
+                          alt={item.title || "Product"}
+                          fill
+                          className="object-contain"
+                        />
+                      </div>
+                      <div className="flex flex-1 flex-col">
+                        <div className="mb-2 flex items-start justify-between">
+                          <h3 className="text-base">
+                            <span className="font-medium text-[#C5AF71]">
+                              {item.variant?.product?.title || item.title}
+                            </span>
+                          </h3>
+                          <button
+                            onClick={() => handleRemoveItem(item.id)}
+                            disabled={isUpdating}
+                            className="ml-2 rounded-full p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-red-600 disabled:opacity-50"
+                            title="Remove item"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                        {item.variant?.title && item.variant?.title !== "Default" && (
+                          <p className="mb-2 text-sm text-gray-600">
+                            {item.variant.title}
+                          </p>
+                        )}
+                        <p className="mb-3 text-lg font-semibold">
+                          {cart?.currency_code && item.unit_price && convertToLocale({
+                            amount: item.unit_price,
+                            currency_code: cart.currency_code,
+                          })}
                         </p>
-                      )}
-                      <p className="mb-2 text-lg font-semibold">
-                        {cart?.currency_code && item.unit_price && convertToLocale({
-                          amount: item.unit_price,
-                          currency_code: cart.currency_code,
-                        })}
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        Quantity: {item.quantity}
-                      </p>
+                        <div className="mt-auto flex items-center gap-3">
+                          <span className="text-sm text-gray-600">Quantity:</span>
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}
+                              disabled={isUpdating}
+                              className="flex h-8 w-8 items-center justify-center rounded-full border border-gray-300 transition-colors hover:bg-gray-100 disabled:opacity-50"
+                              aria-label="Decrease quantity"
+                            >
+                              <Minus className="h-4 w-4" />
+                            </button>
+                            <span className="min-w-[2rem] text-center text-base font-medium">
+                              {item.quantity}
+                            </span>
+                            <button
+                              onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}
+                              disabled={isUpdating}
+                              className="flex h-8 w-8 items-center justify-center rounded-full border border-gray-300 transition-colors hover:bg-gray-100 disabled:opacity-50"
+                              aria-label="Increase quantity"
+                            >
+                              <Plus className="h-4 w-4" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             ) : (
               <div className="flex h-full items-center justify-center text-gray-500">
@@ -117,7 +191,7 @@ export function CartDrawer() {
           <div className="border-t border-gray-200 px-20 py-8">
             <div className="space-y-4">
               <Link
-                href="/shop/checkout"
+                href="/order/checkout"
                 className="flex h-[49px] w-full items-center justify-center gap-3 rounded-3xl bg-black text-white transition-colors hover:bg-gray-800"
                 onClick={closeCart}
               >

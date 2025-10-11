@@ -2,7 +2,7 @@
 
 import React from "react";
 import ProductHero from "../shared/product-hero";
-import HorizontalProduct, { ProductSide } from "../shared/horizontal-product";
+import HorizontalProduct from "../shared/horizontal-product";
 import { HealthWellbeing } from "../shared/health-wellbeing";
 import ContactUs from "~/components/ui/contact-us/contact-us";
 import { imageUrls } from "~/lib/imageUrls";
@@ -18,7 +18,7 @@ export const BathsScene: React.FC<BathsSceneProps> = () => {
       />
       <div className="h-[50px]" />
       <HorizontalProduct
-        variant={ProductSide.Left}
+        variant="left"
         title="Ice Baths"
         description="Immerse yourself in the transformative benefits of our Ice Baths, featuring
             a best materials for durability and aesthetics and advanced chiller system

@@ -2,7 +2,7 @@
 
 
 import ProductHero from "../shared/product-hero";
-import { ProductShowcase, ProductSide } from "../shared/product-showcase";
+import { ProductShowcase } from "../shared/product-showcase";
 import { HealthWellbeing } from "../shared/health-wellbeing";
 import { KeyConsiderations } from "../shared/key-considerations";
 import ContactUs from "~/components/ui/contact-us/contact-us";
@@ -44,7 +44,7 @@ export const SaunasScene = () => {
       <div className="h-[50px]" />
       
       <ProductShowcase
-        variant={ProductSide.Left}
+        variant="left"
         title="Custom-Built Saunas"
         description="Unleash Your Imagination and Craft Your Dream Sauna: Where Your Vision Meets Our Expert Craftsmanship. Embark on the Journey to Create Your Ultimate Personal Retreat with Saunas of the World. Let Your Ideas Soar. There Are No Limits to What We Can Achieve Together."
         imagePath={imageUrls.customBuiltSaunas}
@@ -53,7 +53,7 @@ export const SaunasScene = () => {
       />
       
       <ProductShowcase
-        variant={ProductSide.Right}
+        variant="right"
         title="PRE-MADE SAUNAS"
         description="Experience Unmatched Sauna Quality and Longevity. Our dedication to exceptional craftsmanship ensures your sauna will provide years of enjoyment. Crafted from the finest materials and powered by world-class heaters, our saunas guarantee worry-free relaxation and are suitable for indoor and outdoor use."
         imagePath={imageUrls.premadeSaunas}

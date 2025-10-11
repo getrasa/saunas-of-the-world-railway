@@ -1,6 +1,8 @@
+"use client";
+
 import React from "react";
 import ProductHero from "../shared/product-hero";
-import HorizontalProduct, { ProductSide } from "../shared/horizontal-product";
+import HorizontalProduct from "../shared/horizontal-product";
 import ContactUs from "~/components/ui/contact-us/contact-us";
 import { imageUrls } from "~/lib/imageUrls";
 
@@ -15,7 +17,7 @@ export const EquipmentScene: React.FC<EquipmentSceneProps> = () => {
       />
       <div className="h-[50px]" />
       <HorizontalProduct
-        variant={ProductSide.Left}
+        variant="left"
         title="ELECTRIC SAUNA HEATERS"
         description="Discover unparalleled relaxation with our sleek electric sauna heaters.
             Designed for both private and commercial spaces, these heaters blend
@@ -25,7 +27,7 @@ export const EquipmentScene: React.FC<EquipmentSceneProps> = () => {
         imageAlt="Electric Sauna Heaters"
       />
       <HorizontalProduct
-        variant={ProductSide.Right}
+        variant="right"
         title="WOOD BURN SAUNA HEATERS"
         description="Immerse yourself in cozy warmth with our stylish wood-burning heaters,
             perfect for private retreats or commercial spaces. Crafted for durability,
@@ -35,7 +37,7 @@ export const EquipmentScene: React.FC<EquipmentSceneProps> = () => {
         imageAlt="Wood Burn Sauna Heaters"
       />
       <HorizontalProduct
-        variant={ProductSide.Left}
+        variant="left"
         title="STEAM GENERATORS"
         description="Immerse yourself in the epitome of well-being and relaxation with the state-
             of-the-art steam generators from us. Perfect for creating a spa-like
@@ -46,7 +48,7 @@ export const EquipmentScene: React.FC<EquipmentSceneProps> = () => {
         imageAlt="Steam Generators"
       />
       <HorizontalProduct
-        variant={ProductSide.Right}
+        variant="right"
         title="CONTROL UNITS"
         description="Sauna heaters and infrared panels require control units to ensure a
             seamless sauna experience. With intuitive controls, managing your sauna
