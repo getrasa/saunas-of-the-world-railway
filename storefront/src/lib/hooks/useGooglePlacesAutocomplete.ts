@@ -96,7 +96,7 @@ export function useGooglePlacesAutocomplete() {
         postalCode = component.long_name
       }
       if (types.includes("country")) {
-        countryCode = component.short_name
+        countryCode = component.short_name.toLowerCase()
       }
     })
 
@@ -110,7 +110,7 @@ export function useGooglePlacesAutocomplete() {
       city,
       province,
       postalCode,
-      countryCode, // Will be normalized to lowercase by schema validation
+      countryCode, // Lowercase ISO 2-letter code (e.g., 'us', 'au')
     }
   }
 

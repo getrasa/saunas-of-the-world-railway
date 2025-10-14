@@ -1,11 +1,15 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import Image from 'next/image'
+import { Card, CardContent, CardFooter } from '@lib/components/ui/card'
+import { Separator } from '@lib/components/ui/separator'
 import { useCart } from '~/contexts/cart-context'
 import { convertToLocale } from '@lib/util/money'
 import { listCartShippingMethods } from '@lib/data/fulfillment'
 import { useCheckoutFormContext } from '~/contexts/checkout-form-context'
+import { CheckoutSectionHeader } from '../components/checkout-section-header'
+import { CheckoutCartItem } from '../components/checkout-cart-item'
+import { ScrollableItemList } from '../components/scrollable-item-list'
 
 interface OrderSummaryProps {
   showEditButton?: boolean
@@ -48,98 +52,93 @@ export function OrderSummary({
 
   if (!cart || items.length === 0) {
     return (
-      <div className="w-[542px]">
-        <div className="bg-white rounded-2xl overflow-hidden p-8 text-center">
+      <Card className="w-[542px]">
+        <CheckoutSectionHeader title="Order Summary" />
+        <CardContent className="text-center py-8">
           <p className="text-gray-600">Your cart is empty</p>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     )
   }
 
   return (
-    <div className="w-[542px]">
-      <div className="bg-white rounded-2xl overflow-hidden">
-        {/* Order Summary Header */}
-        <div className="border-b border-silver px-[49px] py-[45px]">
-          <div className="flex items-end justify-between">
-            <h2 className="text-[24px] font-medium">Order Summary</h2>
-            <span className="text-[16px] font-medium">{items.length} Items</span>
-          </div>
-        </div>
+    <Card className="w-[542px]">
+      {/* Order Summary Header */}
+      <CheckoutSectionHeader 
+        title="Order Summary" 
+        subtitle={`${items.length} Items`}
+      />
 
-        {/* Your Order */}
-        {showEditButton && (
-          <div className="border-b border-[#ededed] px-[49px] py-[17px] flex items-center justify-between">
-            <span className="text-[18px] font-medium">Your order</span>
+      {/* Your Order Edit Section */}
+      {showEditButton && (
+        <>
+          <CardContent className="px-[49px] py-4 flex items-center justify-between">
+            <span className="text-lg font-medium">Your order</span>
             <button
               onClick={onEdit}
-              className="text-[16px] font-medium text-[#7a7a7a] underline hover:text-gray-900 transition-colors"
+              className="text-base font-medium text-[#7a7a7a] underline hover:text-gray-900 transition-colors"
             >
               Edit
             </button>
-          </div>
-        )}
+          </CardContent>
+          <Separator />
+        </>
+      )}
 
-        {/* Order Items */}
-        {items.map((item) => {
-          const productTitle = item.variant?.product?.title || item.title
-          const variantTitle = item.variant?.title && item.variant.title !== 'Default' ? item.variant.title : ''
-          const thumbnail = item.variant?.product?.thumbnail || item.thumbnail
-          const unitPrice = item.unit_price || 0
+      {/* Order Items */}
+      <CardContent className="p-0">
+        <ScrollableItemList variant="order-summary">
+          {items.map((item) => {
+            const productTitle = item.variant?.product?.title || item.title
+            const variantTitle = item.variant?.title && item.variant.title !== 'Default' ? item.variant.title : ''
+            const thumbnail = item.variant?.product?.thumbnail || item.thumbnail
+            const unitPrice = item.unit_price || 0
 
-          return (
-            <div key={item.id} className="px-6 py-[33px] flex gap-[47px] border-b border-[#ededed] last:border-b-0">
-              <div className="w-[107px] h-[104px] rounded-lg flex items-center justify-center bg-gray-50">
-                {thumbnail ? (
-                  <Image
-                    src={thumbnail}
-                    alt={productTitle || 'Product'}
-                    width={107}
-                    height={104}
-                    className="object-contain"
-                  />
-                ) : (
-                  <div className="w-[89px] h-[103px] bg-gray-200 rounded-[111px]" />
-                )}
-              </div>
-              <div className="flex-1 space-y-2">
-                <p className="text-[16px] font-medium text-black line-clamp-2">{productTitle}</p>
-                {variantTitle && (
-                  <p className="text-[12px] text-[#6f6f6f]">{variantTitle}</p>
-                )}
-                <p className="text-[12px] text-[#6f6f6f]">Amount: {item.quantity}</p>
-              </div>
-              <div className="text-[16px] font-bold">
-                {convertToLocale({ amount: unitPrice, currency_code: currencyCode })}
-              </div>
-            </div>
-          )
-        })}
+            return (
+              <CheckoutCartItem
+                key={item.id}
+                id={item.id}
+                thumbnail={thumbnail}
+                title={productTitle || ''}
+                variantTitle={variantTitle}
+                quantity={item.quantity || 1}
+                unitPrice={unitPrice}
+                currencyCode={currencyCode}
+                variant="order-summary"
+                showQuantityControls={false}
+              />
+            )
+          })}
+        </ScrollableItemList>
+      </CardContent>
 
-        {/* Products Total */}
-        <div className="border-t border-[#ededed] px-12 py-[19px] flex items-center justify-between">
-          <span className="text-[16px]">Products</span>
-          <span className="text-[16px]">
-            {convertToLocale({ amount: subtotal, currency_code: currencyCode })}
-          </span>
-        </div>
+      <Separator />
 
-        {/* Shipping Fee */}
-        <div className="px-12 py-[19px] flex items-center justify-between">
-          <span className="text-[16px]">Shipping Fee</span>
-          <span className="text-[16px]">
-            {convertToLocale({ amount: shippingFee, currency_code: currencyCode })}
-          </span>
-        </div>
+      {/* Products Total */}
+      <CardContent className="px-12 py-4 flex items-center justify-between">
+        <span className="text-base">Products</span>
+        <span className="text-base">
+          {convertToLocale({ amount: subtotal, currency_code: currencyCode })}
+        </span>
+      </CardContent>
 
-        {/* Total */}
-        <div className="border-t border-silver px-12 py-11 flex items-center justify-between">
-          <span className="text-[24px] font-medium">Total</span>
-          <span className="text-[24px] font-semibold">
-            {convertToLocale({ amount: total, currency_code: currencyCode })}
-          </span>
-        </div>
-      </div>
-    </div>
+      {/* Shipping Fee */}
+      <CardContent className="px-12 py-4 flex items-center justify-between">
+        <span className="text-base">Shipping Fee</span>
+        <span className="text-base">
+          {convertToLocale({ amount: shippingFee, currency_code: currencyCode })}
+        </span>
+      </CardContent>
+
+      <Separator />
+
+      {/* Total */}
+      <CardFooter className="px-12 py-8 flex items-center justify-between">
+        <span className="text-xl font-medium">Total</span>
+        <span className="text-xl font-semibold">
+          {convertToLocale({ amount: total, currency_code: currencyCode })}
+        </span>
+      </CardFooter>
+    </Card>
   )
 }

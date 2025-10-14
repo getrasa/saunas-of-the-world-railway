@@ -47,9 +47,9 @@ export function CheckoutScene() {
       <Wizard initialStep={currentStep} onStepChange={handleStepChange}>
         <div className="min-h-screen bg-neutral-100 w-full pb-16">
           {/* Logo and Progress Steps */}
-          <div className="flex max-w-[1512px] mx-auto relative">
+          <div className="flex items-center max-w-[1512px] mx-auto relative px-12 py-6">
             {/* Logo */}
-            <div className="absolute left-12 top-4">
+            <div className="flex-shrink-0">
               <Link href="/shop">
                 <Image
                   src="/images/topbar/logo.png"
@@ -60,7 +60,7 @@ export function CheckoutScene() {
                 />
               </Link>
             </div>
-            <div className="pt-2 w-full flex justify-center items-center">
+            <div className="flex-1 flex justify-center items-center">
               <Wizard.Progress>
                 {({ currentStepIndex, steps, goToStep, currentStepId }) => (
                   <CheckoutSteps
@@ -72,9 +72,11 @@ export function CheckoutScene() {
                 )}
               </Wizard.Progress>
             </div>
+            {/* Spacer to balance logo */}
+            <div className="flex-shrink-0 w-[189px]"></div>
           </div>
 
-          <div className="mx-auto max-w-[1512px] px-[52px] pt-8">
+          <div className="mx-auto max-w-[1512px] px-[52px] pt-4">
             {/* Shopping Bag Step */}
             <Wizard.Step id="shopping-bag">
               <div className="flex justify-center">

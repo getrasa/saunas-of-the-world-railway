@@ -4,8 +4,13 @@ import React, { useEffect, useState } from 'react'
 import { Input } from '@lib/components/ui/input'
 import { Checkbox } from '@lib/components/ui/checkbox'
 import { Button } from '@lib/components/ui/button'
+import { Card, CardContent } from '@lib/components/ui/card'
+import { RadioGroup, RadioGroupItem } from '@lib/components/ui/radio-group'
+import { Label } from '@lib/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@lib/components/ui/select'
 import { useCheckoutFormContext } from '~/contexts/checkout-form-context'
 import { AddressAutocomplete } from '../components/address-autocomplete'
+import { CheckoutSectionHeader } from '../components/checkout-section-header'
 import { useCart } from '~/contexts/cart-context'
 import { listCartShippingMethods } from '@lib/data/fulfillment'
 import { convertToLocale } from '@lib/util/money'
@@ -85,15 +90,12 @@ export function Shipping({ onContinue }: ShippingProps) {
   }
 
   return (
-    <div className="w-full max-w-[850px]">
-      <div className="bg-white rounded-2xl overflow-hidden">
-        {/* Section Header */}
-        <div className="border-b border-silver px-16 py-[39px]">
-          <h2 className="text-[32px] font-semibold">Delivery</h2>
-        </div>
+    <Card className="w-full max-w-[850px]">
+      {/* Section Header */}
+      <CheckoutSectionHeader title="Delivery" />
 
-        {/* Form Content */}
-        <div className="px-[61px] py-10 space-y-10">
+      {/* Form Content */}
+      <CardContent className="px-[61px] py-8 space-y-8">
           <h3 className="text-[24px] font-medium">Where are we sending your order?</h3>
 
           {/* Name Fields */}
@@ -103,7 +105,7 @@ export function Shipping({ onContinue }: ShippingProps) {
                 <Input
                   {...register('shippingAddress.firstName')}
                   placeholder="First name"
-                  className="h-[59px] bg-neutral-100 border-0 rounded-lg px-[19px] text-[16px] placeholder:text-[#6f6f6f]"
+                  className="h-12 bg-neutral-100 border-0 rounded-lg px-4 text-base placeholder:text-[#6f6f6f]"
                 />
                 {errors.shippingAddress?.firstName && (
                   <p className="text-red-500 text-sm mt-1">{errors.shippingAddress.firstName.message}</p>
@@ -113,7 +115,7 @@ export function Shipping({ onContinue }: ShippingProps) {
                 <Input
                   {...register('shippingAddress.lastName')}
                   placeholder="Last name"
-                  className="h-[59px] bg-neutral-100 border-0 rounded-lg px-[19px] text-[16px] placeholder:text-[#6f6f6f]"
+                  className="h-12 bg-neutral-100 border-0 rounded-lg px-4 text-base placeholder:text-[#6f6f6f]"
                 />
                 {errors.shippingAddress?.lastName && (
                   <p className="text-red-500 text-sm mt-1">{errors.shippingAddress.lastName.message}</p>
@@ -142,7 +144,7 @@ export function Shipping({ onContinue }: ShippingProps) {
                 <Input
                   {...register('shippingAddress.city')}
                   placeholder="City"
-                  className="h-[59px] bg-neutral-100 border-0 rounded-lg px-[19px] text-[16px] placeholder:text-[#6f6f6f]"
+                  className="h-12 bg-neutral-100 border-0 rounded-lg px-4 text-base placeholder:text-[#6f6f6f]"
                 />
                 {errors.shippingAddress?.city && (
                   <p className="text-red-500 text-sm mt-1">{errors.shippingAddress.city.message}</p>
@@ -152,7 +154,7 @@ export function Shipping({ onContinue }: ShippingProps) {
                 <Input
                   {...register('shippingAddress.province')}
                   placeholder="State/Province"
-                  className="h-[59px] bg-neutral-100 border-0 rounded-lg px-[19px] text-[16px] placeholder:text-[#6f6f6f]"
+                  className="h-12 bg-neutral-100 border-0 rounded-lg px-4 text-base placeholder:text-[#6f6f6f]"
                 />
                 {errors.shippingAddress?.province && (
                   <p className="text-red-500 text-sm mt-1">{errors.shippingAddress.province.message}</p>
@@ -165,24 +167,28 @@ export function Shipping({ onContinue }: ShippingProps) {
                 <Input
                   {...register('shippingAddress.postalCode')}
                   placeholder="Postal Code"
-                  className="h-[59px] bg-neutral-100 border-0 rounded-lg px-[19px] text-[16px] placeholder:text-[#6f6f6f]"
+                  className="h-12 bg-neutral-100 border-0 rounded-lg px-4 text-base placeholder:text-[#6f6f6f]"
                 />
                 {errors.shippingAddress?.postalCode && (
                   <p className="text-red-500 text-sm mt-1">{errors.shippingAddress.postalCode.message}</p>
                 )}
               </div>
               <div>
-                <select
-                  {...register('shippingAddress.countryCode')}
-                  className="h-[59px] bg-neutral-100 border-0 rounded-lg px-[19px] text-[16px] text-[#000] w-full"
+                <Select
+                  value={watch('shippingAddress.countryCode') || ''}
+                  onValueChange={(value) => setValue('shippingAddress.countryCode', value)}
                 >
-                  <option value="">Select Country</option>
-                  {availableCountries.map((country) => (
-                    <option key={country.iso_2} value={country.iso_2}>
-                      {country.display_name}
-                    </option>
-                  ))}
-                </select>
+                  <SelectTrigger className="h-12 bg-neutral-100 border-0 rounded-lg px-4 text-base">
+                    <SelectValue placeholder="Select Country" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableCountries.map((country) => (
+                      <SelectItem key={country.iso_2} value={country.iso_2 || ''}>
+                        {country.display_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 {errors.shippingAddress?.countryCode && (
                   <p className="text-red-500 text-sm mt-1">{errors.shippingAddress.countryCode.message}</p>
                 )}
@@ -232,7 +238,7 @@ export function Shipping({ onContinue }: ShippingProps) {
                     <Input
                       {...register('billingAddress.firstName')}
                       placeholder="First name"
-                      className="h-[59px] bg-neutral-100 border-0 rounded-lg px-[19px] text-[16px] placeholder:text-[#6f6f6f]"
+                      className="h-12 bg-neutral-100 border-0 rounded-lg px-4 text-base placeholder:text-[#6f6f6f]"
                     />
                     {errors.billingAddress?.firstName && (
                       <p className="text-red-500 text-sm mt-1">{errors.billingAddress.firstName.message}</p>
@@ -242,7 +248,7 @@ export function Shipping({ onContinue }: ShippingProps) {
                     <Input
                       {...register('billingAddress.lastName')}
                       placeholder="Last name"
-                      className="h-[59px] bg-neutral-100 border-0 rounded-lg px-[19px] text-[16px] placeholder:text-[#6f6f6f]"
+                      className="h-12 bg-neutral-100 border-0 rounded-lg px-4 text-base placeholder:text-[#6f6f6f]"
                     />
                     {errors.billingAddress?.lastName && (
                       <p className="text-red-500 text-sm mt-1">{errors.billingAddress.lastName.message}</p>
@@ -269,7 +275,7 @@ export function Shipping({ onContinue }: ShippingProps) {
                     <Input
                       {...register('billingAddress.city')}
                       placeholder="City"
-                      className="h-[59px] bg-neutral-100 border-0 rounded-lg px-[19px] text-[16px] placeholder:text-[#6f6f6f]"
+                      className="h-12 bg-neutral-100 border-0 rounded-lg px-4 text-base placeholder:text-[#6f6f6f]"
                     />
                     {errors.billingAddress?.city && (
                       <p className="text-red-500 text-sm mt-1">{errors.billingAddress.city.message}</p>
@@ -279,7 +285,7 @@ export function Shipping({ onContinue }: ShippingProps) {
                     <Input
                       {...register('billingAddress.province')}
                       placeholder="State/Province"
-                      className="h-[59px] bg-neutral-100 border-0 rounded-lg px-[19px] text-[16px] placeholder:text-[#6f6f6f]"
+                      className="h-12 bg-neutral-100 border-0 rounded-lg px-4 text-base placeholder:text-[#6f6f6f]"
                     />
                     {errors.billingAddress?.province && (
                       <p className="text-red-500 text-sm mt-1">{errors.billingAddress.province.message}</p>
@@ -292,24 +298,28 @@ export function Shipping({ onContinue }: ShippingProps) {
                     <Input
                       {...register('billingAddress.postalCode')}
                       placeholder="Postal Code"
-                      className="h-[59px] bg-neutral-100 border-0 rounded-lg px-[19px] text-[16px] placeholder:text-[#6f6f6f]"
+                      className="h-12 bg-neutral-100 border-0 rounded-lg px-4 text-base placeholder:text-[#6f6f6f]"
                     />
                     {errors.billingAddress?.postalCode && (
                       <p className="text-red-500 text-sm mt-1">{errors.billingAddress.postalCode.message}</p>
                     )}
                   </div>
                   <div>
-                    <select
-                      {...register('billingAddress.countryCode')}
-                      className="h-[59px] bg-neutral-100 border-0 rounded-lg px-[19px] text-[16px] text-[#000] w-full"
+                    <Select
+                      value={watch('billingAddress.countryCode') || ''}
+                      onValueChange={(value) => setValue('billingAddress.countryCode', value)}
                     >
-                      <option value="">Select Country</option>
-                      {availableCountries.map((country) => (
-                        <option key={country.iso_2} value={country.iso_2}>
-                          {country.display_name}
-                        </option>
-                      ))}
-                    </select>
+                      <SelectTrigger className="h-12 bg-neutral-100 border-0 rounded-lg px-4 text-base">
+                        <SelectValue placeholder="Select Country" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {availableCountries.map((country) => (
+                          <SelectItem key={country.iso_2} value={country.iso_2 || ''}>
+                            {country.display_name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     {errors.billingAddress?.countryCode && (
                       <p className="text-red-500 text-sm mt-1">{errors.billingAddress.countryCode.message}</p>
                     )}
@@ -320,18 +330,23 @@ export function Shipping({ onContinue }: ShippingProps) {
           </div>
 
           {/* Shipping Options Section */}
-          <div className="space-y-[26px] w-[708px]">
-            <h4 className="text-[16px] font-medium">Shipping Method</h4>
+          <div className="space-y-4 w-[708px]">
+            <h4 className="text-base font-medium">Shipping Method</h4>
             
             {loadingOptions ? (
-              <div className="text-[16px] text-[#6f6f6f]">Loading shipping options...</div>
+              <div className="text-base text-[#6f6f6f]">Loading shipping options...</div>
             ) : shippingOptions.length === 0 ? (
-              <div className="text-[16px] text-[#6f6f6f]">No shipping options available</div>
+              <div className="text-base text-[#6f6f6f]">No shipping options available</div>
             ) : (
-              <div className="space-y-3">
+              <RadioGroup 
+                value={selectedShippingMethodId} 
+                onValueChange={(value) => setValue('shippingMethodId', value)}
+                className="space-y-3"
+              >
                 {shippingOptions.map((option) => (
-                  <label
+                  <Label
                     key={option.id}
+                    htmlFor={option.id}
                     className={`flex items-center justify-between p-4 border-2 rounded-lg cursor-pointer transition-colors ${
                       selectedShippingMethodId === option.id
                         ? 'border-[#C5AF71] bg-[#C5AF71]/5'
@@ -339,26 +354,20 @@ export function Shipping({ onContinue }: ShippingProps) {
                     }`}
                   >
                     <div className="flex items-center gap-4">
-                      <input
-                        type="radio"
-                        value={option.id}
-                        checked={selectedShippingMethodId === option.id}
-                        onChange={(e) => setValue('shippingMethodId', e.target.value)}
-                        className="w-5 h-5 text-[#C5AF71] focus:ring-[#C5AF71]"
-                      />
+                      <RadioGroupItem value={option.id} id={option.id} />
                       <div>
-                        <p className="text-[16px] font-medium">{option.name}</p>
+                        <p className="text-base font-medium">{option.name}</p>
                       </div>
                     </div>
-                    <div className="text-[16px] font-semibold">
+                    <div className="text-base font-semibold">
                       {convertToLocale({ 
                         amount: option.amount || 0, 
                         currency_code: cart?.currency_code || 'USD' 
                       })}
                     </div>
-                  </label>
+                  </Label>
                 ))}
-              </div>
+              </RadioGroup>
             )}
             {errors.shippingMethodId && (
               <p className="text-red-500 text-sm">{errors.shippingMethodId.message}</p>
@@ -369,12 +378,11 @@ export function Shipping({ onContinue }: ShippingProps) {
           <Button
             onClick={handleContinue}
             disabled={isSubmitting || loadingOptions}
-            className="w-full h-[49px] bg-black hover:bg-gray-800 text-white text-[16px] font-semibold rounded-[24px] disabled:opacity-50"
+            className="w-full h-[49px] bg-black hover:bg-gray-800 text-white text-base font-semibold rounded-[24px] disabled:opacity-50"
           >
             Continue to Payment
           </Button>
-        </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   )
 }

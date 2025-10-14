@@ -3,6 +3,11 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { Input } from '@lib/components/ui/input'
 import { Button } from '@lib/components/ui/button'
+import { Card, CardContent, CardFooter } from '@lib/components/ui/card'
+import { RadioGroup, RadioGroupItem } from '@lib/components/ui/radio-group'
+import { Label } from '@lib/components/ui/label'
+import { Separator } from '@lib/components/ui/separator'
+import { CheckoutSectionHeader } from '../components/checkout-section-header'
 import { useCart } from '~/contexts/cart-context'
 import { convertToLocale } from '@lib/util/money'
 import { useCheckoutFormContext } from '~/contexts/checkout-form-context'
@@ -246,153 +251,147 @@ function PaymentForm({
   }
 
   return (
-    <div className="w-full max-w-[850px]">
-      <div className="bg-white rounded-2xl overflow-hidden">
-        {/* Section Header */}
-        <div className="border-b border-silver px-16 py-[39px]">
-          <h2 className="text-[32px] font-semibold">Payment</h2>
+    <Card className="w-full max-w-[850px]">
+      {/* Section Header */}
+      <CheckoutSectionHeader title="Payment" />
+
+      {/* Form Content */}
+      <CardContent className="px-[61px] py-8 space-y-6">
+        {/* Contact Information */}
+        <h3 className="text-xl font-medium">Where should we send your receipt?</h3>
+
+        <div className="w-[708px] space-y-6">
+          <div>
+            <Input
+              {...register('email')}
+              type="email"
+              placeholder="Email"
+              className="h-12 bg-neutral-100 border-0 rounded-lg px-4 text-base placeholder:text-[#6f6f6f]"
+            />
+            {errors.email && (
+              <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
+            )}
+          </div>
+
+          <div>
+            <Input
+              {...register('phone')}
+              type="tel"
+              placeholder="Phone Number"
+              className="h-12 bg-neutral-100 border-0 rounded-lg px-4 text-base placeholder:text-[#6f6f6f]"
+            />
+            {errors.phone && (
+              <p className="text-red-500 text-sm mt-1">{errors.phone.message}</p>
+            )}
+          </div>
         </div>
 
-        {/* Form Content */}
-        <div className="px-[61px] py-10 space-y-6">
-          {/* Contact Information */}
-          <h3 className="text-[24px] font-medium">Where should we send your receipt?</h3>
+        {/* Payment Method Selection */}
+        <div className="pt-4">
+          <h3 className="text-xl font-medium mb-4">Select Payment Method</h3>
 
-          <div className="w-[708px] space-y-6">
-            <div>
-              <Input
-                {...register('email')}
-                type="email"
-                placeholder="Email"
-                className="h-[58px] bg-neutral-100 border-0 rounded-lg px-[19px] text-[16px] placeholder:text-[#6f6f6f]"
-              />
-              {errors.email && (
-                <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
-              )}
-            </div>
-
-            <div>
-              <Input
-                {...register('phone')}
-                type="tel"
-                placeholder="Phone Number"
-                className="h-[58px] bg-neutral-100 border-0 rounded-lg px-[19px] text-[16px] placeholder:text-[#6f6f6f]"
-              />
-              {errors.phone && (
-                <p className="text-red-500 text-sm mt-1">{errors.phone.message}</p>
-              )}
-            </div>
-          </div>
-
-          {/* Payment Method Selection */}
-          <div className="pt-4">
-            <h3 className="text-[24px] font-medium mb-4">Select Payment Method</h3>
-
-            <div className="w-[708px] space-y-3">
-              {/* Credit Card Option */}
-              <label className="flex items-center gap-3 p-4 border-2 rounded-lg cursor-pointer hover:border-[#C5AF71] transition-colors"
-                style={{ borderColor: paymentMethod === 'credit_card' ? '#C5AF71' : '#e5e7eb' }}
-              >
-                <input
-                  type="radio"
-                  value="credit_card"
-                  checked={paymentMethod === 'credit_card'}
-                  onChange={() => setValue('paymentMethod', 'credit_card')}
-                  className="w-5 h-5 text-[#C5AF71] focus:ring-[#C5AF71]"
-                />
-                <div>
-                  <p className="text-[16px] font-medium">Credit Card</p>
-                  <p className="text-[14px] text-[#6f6f6f]">Pay securely with your credit or debit card</p>
-              </div>
-              </label>
-
-              {/* Request Quote Option */}
-              <label className="flex items-center gap-3 p-4 border-2 rounded-lg cursor-pointer hover:border-[#C5AF71] transition-colors"
-                style={{ borderColor: paymentMethod === 'pay_for_quote' ? '#C5AF71' : '#e5e7eb' }}
-              >
-                <input
-                  type="radio"
-                  value="pay_for_quote"
-                  checked={paymentMethod === 'pay_for_quote'}
-                  onChange={() => setValue('paymentMethod', 'pay_for_quote')}
-                  className="w-5 h-5 text-[#C5AF71] focus:ring-[#C5AF71]"
-                />
-                <div>
-                  <p className="text-[16px] font-medium">Request Quote</p>
-                  <p className="text-[14px] text-[#6f6f6f]">Get a quote and pay via bank transfer</p>
-                </div>
-              </label>
-            </div>
-              </div>
-
-          {/* Card Details (only shown for credit card) */}
-          {paymentMethod === 'credit_card' && (
-            <div className="w-[708px] space-y-4 pt-4">
-              <h3 className="text-[24px] font-medium">Enter your payment details</h3>
-              
-              <div className="h-[58px] bg-neutral-100 rounded-lg px-[19px] flex items-center">
-                <CardElement
-                  options={cardElementOptions}
-                  onChange={(e) => {
-                    setCardComplete(e.complete)
-                    setCardError(e.error?.message || null)
-                  }}
-                  className="w-full"
-                />
-              </div>
-              {cardError && (
-                <p className="text-red-500 text-sm">{cardError}</p>
-              )}
-            </div>
-          )}
-          </div>
-
-        {/* Order Total and Continue Button */}
-        <div className="border-t border-silver px-[61px] py-[31px] space-y-[33px]">
-          <div className="flex items-start justify-between w-[708px]">
-            <div>
-              <p className="text-[24px] font-medium">Order Total</p>
-              <p className="text-[16px] font-medium text-[#6f6f6f] mt-2">Including GST and shipping</p>
-            </div>
-            <p className="text-[24px] font-semibold">
-              {convertToLocale({ amount: total, currency_code: currencyCode })}
-            </p>
-          </div>
-
-          {/* Error Message Display */}
-          {submitError && (
-            <div className="w-[728px] bg-red-50 border-l-4 border-red-500 p-4 rounded">
-              <div className="flex items-start">
-                <div className="flex-shrink-0">
-                  <svg className="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <div className="ml-3">
-                  <p className="text-sm text-red-700 font-medium">
-                    {submitError}
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          <Button
-            type="button"
-            onClick={handleSubmit}
-            disabled={isSubmitting || (paymentMethod === 'credit_card' && !cardComplete)}
-            className="w-[728px] h-[49px] bg-black hover:bg-gray-800 text-white text-[16px] font-semibold rounded-[24px] disabled:opacity-50 disabled:cursor-not-allowed"
+          <RadioGroup 
+            value={paymentMethod} 
+            onValueChange={(value) => setValue('paymentMethod', value as 'credit_card' | 'pay_for_quote')}
+            className="w-[708px] space-y-3"
           >
-            {isSubmitting 
-              ? 'Processing...' 
-              : paymentMethod === 'credit_card' 
-                ? 'Complete Order' 
-                : 'Submit Quote Request'
-            }
-          </Button>
+            {/* Credit Card Option */}
+            <Label 
+              htmlFor="credit_card"
+              className="flex items-center gap-3 p-4 border-2 rounded-lg cursor-pointer hover:border-[#C5AF71] transition-colors"
+              style={{ borderColor: paymentMethod === 'credit_card' ? '#C5AF71' : '#e5e7eb' }}
+            >
+              <RadioGroupItem value="credit_card" id="credit_card" />
+              <div>
+                <p className="text-base font-medium">Credit Card</p>
+                <p className="text-sm text-[#6f6f6f]">Pay securely with your credit or debit card</p>
+              </div>
+            </Label>
+
+            {/* Request Quote Option */}
+            <Label 
+              htmlFor="pay_for_quote"
+              className="flex items-center gap-3 p-4 border-2 rounded-lg cursor-pointer hover:border-[#C5AF71] transition-colors"
+              style={{ borderColor: paymentMethod === 'pay_for_quote' ? '#C5AF71' : '#e5e7eb' }}
+            >
+              <RadioGroupItem value="pay_for_quote" id="pay_for_quote" />
+              <div>
+                <p className="text-base font-medium">Request Quote</p>
+                <p className="text-sm text-[#6f6f6f]">Get a quote and pay via bank transfer</p>
+              </div>
+            </Label>
+          </RadioGroup>
         </div>
-      </div>
-    </div>
+
+        {/* Card Details (only shown for credit card) */}
+        {paymentMethod === 'credit_card' && (
+          <div className="w-[708px] space-y-4 pt-4">
+            <h3 className="text-xl font-medium">Enter your payment details</h3>
+            
+            <div className="h-12 bg-neutral-100 rounded-lg px-4 flex items-center">
+              <CardElement
+                options={cardElementOptions}
+                onChange={(e) => {
+                  setCardComplete(e.complete)
+                  setCardError(e.error?.message || null)
+                }}
+                className="w-full"
+              />
+            </div>
+            {cardError && (
+              <p className="text-red-500 text-sm">{cardError}</p>
+            )}
+          </div>
+        )}
+      </CardContent>
+
+      <Separator />
+
+      {/* Order Total and Continue Button */}
+      <CardFooter className="px-[61px] py-6 flex flex-col gap-6">
+        <div className="flex items-start justify-between w-[708px]">
+          <div>
+            <p className="text-xl font-medium">Order Total</p>
+            <p className="text-base font-medium text-[#6f6f6f] mt-2">Including GST and shipping</p>
+          </div>
+          <p className="text-xl font-semibold">
+            {convertToLocale({ amount: total, currency_code: currencyCode })}
+          </p>
+        </div>
+
+        {/* Error Message Display */}
+        {submitError && (
+          <div className="w-[728px] bg-red-50 border-l-4 border-red-500 p-4 rounded">
+            <div className="flex items-start">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <p className="text-sm text-red-700 font-medium">
+                  {submitError}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <Button
+          type="button"
+          onClick={handleSubmit}
+          disabled={isSubmitting || (paymentMethod === 'credit_card' && !cardComplete)}
+          className="w-[728px] h-[49px] bg-black hover:bg-gray-800 text-white text-base font-semibold rounded-[24px] disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isSubmitting 
+            ? 'Processing...' 
+            : paymentMethod === 'credit_card' 
+              ? 'Complete Order' 
+              : 'Submit Quote Request'
+          }
+        </Button>
+      </CardFooter>
+    </Card>
   )
 }
 

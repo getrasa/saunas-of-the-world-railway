@@ -28,7 +28,7 @@ export function CheckoutSteps({ currentStepIndex, steps, onStepClick, currentSte
   }
 
   return (
-    <div className="flex items-center justify-center gap-2 py-8">
+    <div className="flex items-center justify-center gap-2 py-4">
       {visibleSteps.map((step, index) => {
         const isClickable = index < currentStepIndex
         
@@ -41,7 +41,7 @@ export function CheckoutSteps({ currentStepIndex, steps, onStepClick, currentSte
               )}
               onClick={() => handleStepClick(step.id, index)}
             >
-              <div className="relative size-[26px]">
+              <div className="relative size-5">
                 <div className={cn(
                   "absolute inset-0 rounded-full",
                   index <= currentStepIndex
@@ -49,16 +49,14 @@ export function CheckoutSteps({ currentStepIndex, steps, onStepClick, currentSte
                     : "border-2 border-gray-300"
                 )}></div>
                 <span className={cn(
-                  "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 font-medium",
-                  index === 2 ? "text-[16px]" : "text-[18px]",
+                  "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 font-medium text-sm",
                   index <= currentStepIndex ? "text-white" : "text-gray-500"
                 )}>
                   {step.number}
                 </span>
               </div>
               <span className={cn(
-                "font-medium",
-                index === 2 ? "text-[16px]" : "text-[18px]",
+                "font-medium text-base",
                 index <= currentStepIndex ? "text-black" : "text-gray-500"
               )}>
                 {step.label}

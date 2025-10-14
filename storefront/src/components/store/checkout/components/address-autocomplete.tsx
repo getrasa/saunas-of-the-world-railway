@@ -48,7 +48,8 @@ export function AddressAutocomplete({
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className={`h-[58px] bg-neutral-100 border-0 rounded-lg px-[19px] pr-12 text-[16px] placeholder:text-[#6f6f6f] ${
+        autoComplete="off"
+        className={`h-12 bg-neutral-100 border-0 rounded-lg px-4 pr-12 text-base placeholder:text-[#6f6f6f] ${
           error ? "border-2 border-red-500" : ""
         } ${className}`}
       />
