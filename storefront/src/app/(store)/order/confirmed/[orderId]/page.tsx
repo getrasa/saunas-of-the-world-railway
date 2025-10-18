@@ -47,14 +47,16 @@ export default async function OrderConfirmationPage({
 
   // Detect payment method from order payment provider or query param
   const paymentProvider = order.payment_collections?.[0]?.payment_sessions?.[0]?.provider_id || ''
-  const isQuotePayment = searchParams.payment_method === 'pay_for_quote' || 
+  const isBankTransfer = searchParams.payment_method === 'bank_transfer' || 
+                         paymentProvider === 'pp_system_default' ||
+                         paymentProvider.includes('system') ||
                          paymentProvider.includes('manual')
 
   return (
     <div className="min-h-screen bg-neutral-100 w-full pb-16 pt-8">
       <div className="mx-auto max-w-[1512px] px-[52px]">
         <div className="flex gap-4 justify-center">
-          <ThankYou order={order} isQuotePayment={isQuotePayment} />
+          <ThankYou order={order} isBankTransfer={isBankTransfer} />
           <OrderSummaryConfirmation order={order} />
         </div>
       </div>

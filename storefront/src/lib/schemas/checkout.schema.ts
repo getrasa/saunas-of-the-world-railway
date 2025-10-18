@@ -16,7 +16,7 @@ const addressSchema = z.object({
 })
 
 // Payment method enum
-export const PaymentMethodEnum = z.enum(["credit_card", "pay_for_quote"])
+export const PaymentMethodEnum = z.enum(["credit_card", "bank_transfer"])
 export type PaymentMethod = z.infer<typeof PaymentMethodEnum>
 
 // Main checkout form schema

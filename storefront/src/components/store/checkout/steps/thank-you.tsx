@@ -4,10 +4,10 @@ import { HttpTypes } from '@medusajs/types'
 
 interface ThankYouProps {
   order: HttpTypes.StoreOrder
-  isQuotePayment?: boolean
+  isBankTransfer?: boolean
 }
 
-export function ThankYou({ order, isQuotePayment = false }: ThankYouProps) {
+export function ThankYou({ order, isBankTransfer = false }: ThankYouProps) {
   const shippingAddress = order.shipping_address
   const billingAddress = order.billing_address
   return (
@@ -26,12 +26,12 @@ export function ThankYou({ order, isQuotePayment = false }: ThankYouProps) {
 
         {/* Payment Info */}
         <div className="px-[61px] py-10 space-y-6">
-          {isQuotePayment ? (
+          {isBankTransfer ? (
             <>
-              <h3 className="text-[24px] font-medium">We'll send you a quote shortly</h3>
+              <h3 className="text-[24px] font-medium">We'll send you payment details shortly</h3>
               <p className="text-[16px] font-medium text-[#6f6f6f]">
-                Thank you for your order! We'll send you a detailed quote via email within 24 hours. 
-                Please pay via bank transfer using the details provided in the email.
+                Thank you for your order! We'll send you bank transfer details via email within 24 hours. 
+                Once payment is confirmed, we'll process your order.
               </p>
             </>
           ) : (
@@ -101,7 +101,7 @@ export function ThankYou({ order, isQuotePayment = false }: ThankYouProps) {
             <div>
               <h4 className="text-[18px] font-medium mb-2">Payment Method</h4>
               <p className="text-[12px] text-[#6f6f6f]">
-                {isQuotePayment ? 'Pay for Quote (Bank Transfer)' : 'Credit Card'}
+                {isBankTransfer ? 'Bank Transfer' : 'Credit Card'}
               </p>
             </div>
           </div>

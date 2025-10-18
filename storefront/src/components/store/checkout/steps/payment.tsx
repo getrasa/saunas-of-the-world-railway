@@ -100,8 +100,8 @@ function PaymentForm({
           // Add/update 2% surcharge for credit card payments
           await addCreditCardSurcharge(cart.id)
           await refreshCart()
-        } else if (paymentMethod === 'pay_for_quote') {
-          // Remove surcharge for quote payments
+        } else if (paymentMethod === 'bank_transfer') {
+          // Remove surcharge for bank transfer payments
           await removeCreditCardSurcharge(cart.id)
           await refreshCart()
         }
@@ -284,14 +284,14 @@ function PaymentForm({
         clearSavedData()
         await placeOrder() // This will redirect to /order/confirmed/[orderId]
       } else {
-        // Handle pay for quote (manual payment)
+        // Handle bank transfer (manual payment)
         if (!cart) {
           throw new Error('Cart not found')
         }
 
-        // Initiate manual payment session
+        // Initiate system payment session for bank transfer
         await initiatePaymentSession(cart, {
-          provider_id: 'pp_manual_manual',
+          provider_id: 'pp_system_default',
         })
 
         // Complete the order with manual payment (pending)
@@ -348,7 +348,7 @@ function PaymentForm({
 
           <RadioGroup 
             value={paymentMethod} 
-            onValueChange={(value) => setValue('paymentMethod', value as 'credit_card' | 'pay_for_quote')}
+            onValueChange={(value) => setValue('paymentMethod', value as 'credit_card' | 'bank_transfer')}
             className="w-[708px] space-y-3"
           >
             {/* Credit Card Option */}
@@ -364,16 +364,16 @@ function PaymentForm({
               </div>
             </Label>
 
-            {/* Request Quote Option */}
+            {/* Bank Transfer Option */}
             <Label 
-              htmlFor="pay_for_quote"
+              htmlFor="bank_transfer"
               className="flex items-center gap-3 p-4 border-2 rounded-lg cursor-pointer hover:border-[#C5AF71] transition-colors"
-              style={{ borderColor: paymentMethod === 'pay_for_quote' ? '#C5AF71' : '#e5e7eb' }}
+              style={{ borderColor: paymentMethod === 'bank_transfer' ? '#C5AF71' : '#e5e7eb' }}
             >
-              <RadioGroupItem value="pay_for_quote" id="pay_for_quote" />
+              <RadioGroupItem value="bank_transfer" id="bank_transfer" />
               <div>
-                <p className="text-base font-medium">Request Quote</p>
-                <p className="text-sm text-[#6f6f6f]">Get a quote and pay via bank transfer</p>
+                <p className="text-base font-medium">Bank Transfer</p>
+                <p className="text-sm text-[#6f6f6f]">Complete your order and pay via bank transfer</p>
               </div>
             </Label>
           </RadioGroup>
@@ -445,7 +445,7 @@ function PaymentForm({
               ? 'Calculating fees...'
               : paymentMethod === 'credit_card' 
                 ? 'Complete Order' 
-                : 'Submit Quote Request'
+                : 'Place Order'
           }
         </Button>
       </CardFooter>
