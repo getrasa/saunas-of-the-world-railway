@@ -29,14 +29,13 @@ export const checkoutFormSchema = z.object({
   
   // Contact info
   email: z.string().email("Please enter a valid email address"),
-  phone: z.string().min(1, "Phone number is required"),
+  phone: z.string()
+    .min(1, "Phone number is required")
+    .regex(/^[0-9\s+\-()]*$/, "Phone number can only contain numbers, spaces, +, -, and parentheses"),
   
   // Billing address
   billingAddressSameAsShipping: z.boolean(),
   billingAddress: addressSchema.optional(),
-  
-  // Delivery preferences
-  safeToLeave: z.boolean(),
   
   // Payment
   paymentMethod: PaymentMethodEnum,
@@ -63,7 +62,6 @@ export const shippingStepSchema = checkoutFormSchema.pick({
   shippingMethodId: true,
   billingAddressSameAsShipping: true,
   billingAddress: true,
-  safeToLeave: true,
 })
 
 export const paymentStepSchema = checkoutFormSchema.pick({

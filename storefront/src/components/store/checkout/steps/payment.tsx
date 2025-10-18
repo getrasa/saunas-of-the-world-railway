@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Input } from '@lib/components/ui/input'
 import { Button } from '@lib/components/ui/button'
 import { Card, CardContent, CardFooter } from '@lib/components/ui/card'
@@ -13,7 +13,7 @@ import { convertToLocale } from '@lib/util/money'
 import { useCheckoutFormContext } from '~/contexts/checkout-form-context'
 import { loadStripe } from '@stripe/stripe-js'
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js'
-import { updateCart, initiatePaymentSession, placeOrder, setShippingMethod } from '@lib/data/cart'
+import { updateCart, initiatePaymentSession, placeOrder, setShippingMethod, addCreditCardSurcharge, removeCreditCardSurcharge } from '@lib/data/cart'
 
 interface PaymentProps {
   onContinue: () => void
@@ -57,10 +57,66 @@ function PaymentForm({
   
   const [cardComplete, setCardComplete] = useState(false)
   const [cardError, setCardError] = useState<string | null>(null)
+  const [isLoadingSurcharge, setIsLoadingSurcharge] = useState(false)
+  const isProcessingSurcharge = useRef(false)
+  const lastProcessedPaymentMethod = useRef<string | null>(null)
 
   const paymentMethod = watch('paymentMethod')
   const email = watch('email')
   const phone = watch('phone')
+
+  // Recalculate surcharge when component mounts if credit card is selected
+  useEffect(() => {
+    async function recalculateSurchargeOnMount() {
+      if (!cart?.id) return
+      if (paymentMethod !== 'credit_card') return
+      
+      // Recalculate surcharge on mount (backend will remove old and add new)
+      try {
+        await addCreditCardSurcharge(cart.id)
+        await refreshCart()
+      } catch (error: any) {
+        console.warn('Failed to recalculate surcharge on mount:', error?.message || error)
+      }
+    }
+
+    recalculateSurchargeOnMount()
+  }, []) // Only run once on mount
+
+  // Handle credit card surcharge when payment method changes
+  useEffect(() => {
+    async function handleSurcharge() {
+      if (!cart?.id || !paymentMethod) return
+      
+      // Prevent duplicate processing
+      if (isProcessingSurcharge.current) return
+      if (lastProcessedPaymentMethod.current === paymentMethod) return
+
+      isProcessingSurcharge.current = true
+      setIsLoadingSurcharge(true)
+
+      try {
+        if (paymentMethod === 'credit_card') {
+          // Add/update 2% surcharge for credit card payments
+          await addCreditCardSurcharge(cart.id)
+          await refreshCart()
+        } else if (paymentMethod === 'pay_for_quote') {
+          // Remove surcharge for quote payments
+          await removeCreditCardSurcharge(cart.id)
+          await refreshCart()
+        }
+        lastProcessedPaymentMethod.current = paymentMethod
+      } catch (error: any) {
+        // Log error but don't block checkout
+        console.warn('Surcharge update failed:', error?.message || error)
+      } finally {
+        isProcessingSurcharge.current = false
+        setIsLoadingSurcharge(false)
+      }
+    }
+
+    handleSurcharge()
+  }, [paymentMethod, cart?.id, refreshCart])
 
   // Clear errors when payment method changes
   useEffect(() => {
@@ -352,7 +408,7 @@ function PaymentForm({
         <div className="flex items-start justify-between w-[708px]">
           <div>
             <p className="text-xl font-medium">Order Total</p>
-            <p className="text-base font-medium text-[#6f6f6f] mt-2">Including GST and shipping</p>
+            <p className="text-base font-medium text-[#6f6f6f] mt-2">Including GST</p>
           </div>
           <p className="text-xl font-semibold">
             {convertToLocale({ amount: total, currency_code: currencyCode })}
@@ -380,14 +436,16 @@ function PaymentForm({
         <Button
           type="button"
           onClick={handleSubmit}
-          disabled={isSubmitting || (paymentMethod === 'credit_card' && !cardComplete)}
-          className="w-[728px] h-[49px] bg-black hover:bg-gray-800 text-white text-base font-semibold rounded-[24px] disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={isSubmitting || isLoadingSurcharge || (paymentMethod === 'credit_card' && !cardComplete)}
+          className="w-[728px] h-[49px] bg-black hover:bg-gray-800 text-white text-base font-semibold rounded-[24px] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
         >
           {isSubmitting 
             ? 'Processing...' 
-            : paymentMethod === 'credit_card' 
-              ? 'Complete Order' 
-              : 'Submit Quote Request'
+            : isLoadingSurcharge
+              ? 'Calculating fees...'
+              : paymentMethod === 'credit_card' 
+                ? 'Complete Order' 
+                : 'Submit Quote Request'
           }
         </Button>
       </CardFooter>

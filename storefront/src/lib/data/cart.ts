@@ -433,3 +433,52 @@ export async function updateRegion(countryCode: string, currentPath: string) {
 
   redirect(`/${countryCode}${currentPath}`)
 }
+
+export async function addCreditCardSurcharge(cartId: string) {
+  if (!cartId) {
+    throw new Error("No cart found when adding surcharge")
+  }
+
+  const url = `${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL}/store/carts/${cartId}/surcharge`
+
+  const response = await fetch(url, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-publishable-api-key': process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY!,
+    },
+  })
+
+  if (!response.ok) {
+    const errorText = await response.text()
+    console.error('Surcharge API error:', response.status, errorText)
+    throw new Error(`Failed to add surcharge: ${response.status} ${errorText}`)
+  }
+
+  revalidateTag("cart")
+  return response.json()
+}
+
+export async function removeCreditCardSurcharge(cartId: string) {
+  if (!cartId) {
+    throw new Error("No cart found when removing surcharge")
+  }
+
+  const response = await fetch(`${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL}/store/carts/${cartId}/surcharge`, {
+    method: 'DELETE',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-publishable-api-key': process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY!,
+    },
+  })
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Failed to remove surcharge' }))
+    throw new Error(error.error || 'Failed to remove surcharge')
+  }
+
+  revalidateTag("cart")
+  return response.json()
+}

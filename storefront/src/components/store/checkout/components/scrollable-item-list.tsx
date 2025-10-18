@@ -14,9 +14,9 @@ export function ScrollableItemList({
   className 
 }: ScrollableItemListProps) {
   // Calculate height to show approximately 3 items
-  // Shopping bag items are now more compact (~150px each) = ~450px for 3
+  // Shopping bag items are now more compact (~150px each) = ~470px for 3+ items
   // Order summary items are (~170px each) = ~510px for 3
-  const height = variant === 'shopping-bag' ? 'h-[450px]' : 'h-[510px]'
+  const height = variant === 'shopping-bag' ? 'h-[470px]' : 'h-[510px]'
 
   return (
     <ScrollArea className={cn(height, className)}>

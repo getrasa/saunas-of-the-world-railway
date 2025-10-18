@@ -55,7 +55,14 @@ export function ShoppingBag({ onContinue }: ShoppingBagProps) {
   const subtotal = cart?.subtotal || 0
   const currencyCode = cart?.currency_code || 'USD'
 
-  if (!cart || items.length === 0) {
+  // Filter out surcharge items for display
+  const productItems = items.filter((item: any) => {
+    const isSurcharge = item.title === 'Credit Card Processing Fee (2%)' || 
+                        item.metadata?.is_surcharge === true
+    return !isSurcharge
+  })
+
+  if (!cart || productItems.length === 0) {
     return (
       <Card className="w-full max-w-[1408px]">
         <CheckoutSectionHeader title="Shopping Bag" />
@@ -71,37 +78,39 @@ export function ShoppingBag({ onContinue }: ShoppingBagProps) {
       {/* Header */}
       <CheckoutSectionHeader 
         title="Shopping Bag" 
-        subtitle={`(${items.length} item${items.length !== 1 ? 's' : ''})`}
+        subtitle={`(${productItems.length} item${productItems.length !== 1 ? 's' : ''})`}
       />
 
       {/* Items */}
       <CardContent className="p-0">
         <ScrollableItemList variant="shopping-bag">
-          {items.map((item) => {
-            const isUpdating = updatingItems.has(item.id)
-            const productTitle = item.variant?.product?.title || item.title
-            const variantTitle = item.variant?.title && item.variant.title !== 'Default' ? item.variant.title : ''
-            const thumbnail = item.variant?.product?.thumbnail || item.thumbnail
-            const unitPrice = item.unit_price || 0
+          {productItems.map((item) => {
+              const isUpdating = updatingItems.has(item.id)
+              const productTitle = item.variant?.product?.title || item.title
+              const variantTitle = item.variant?.title && item.variant.title !== 'Default' ? item.variant.title : ''
+              const thumbnail = item.variant?.product?.thumbnail || item.thumbnail
+              const description = item.variant?.product?.description || ''
+              const unitPrice = item.unit_price || 0
 
-            return (
-              <CheckoutCartItem
-                key={item.id}
-                id={item.id}
-                thumbnail={thumbnail}
-                title={productTitle || ''}
-                variantTitle={variantTitle}
-                quantity={item.quantity || 1}
-                unitPrice={unitPrice}
-                currencyCode={currencyCode}
-                isUpdating={isUpdating}
-                variant="shopping-bag"
-                showQuantityControls={true}
-                onUpdateQuantity={updateAmount}
-                onRemove={removeItem}
-              />
-            )
-          })}
+              return (
+                <CheckoutCartItem
+                  key={item.id}
+                  id={item.id}
+                  thumbnail={thumbnail}
+                  title={productTitle || ''}
+                  variantTitle={variantTitle}
+                  description={description}
+                  quantity={item.quantity || 1}
+                  unitPrice={unitPrice}
+                  currencyCode={currencyCode}
+                  isUpdating={isUpdating}
+                  variant="shopping-bag"
+                  showQuantityControls={true}
+                  onUpdateQuantity={updateAmount}
+                  onRemove={removeItem}
+                />
+              )
+            })}
         </ScrollableItemList>
       </CardContent>
 
@@ -129,7 +138,7 @@ export function ShoppingBag({ onContinue }: ShoppingBagProps) {
         <div className="flex justify-start w-full">
           <Button
             onClick={onContinue}
-            className="w-[634px] h-[49px] bg-black hover:bg-gray-800 text-white text-base font-semibold rounded-[24px]"
+            className="w-[634px] h-[49px] bg-black hover:bg-gray-800 text-white text-base font-semibold rounded-[24px] cursor-pointer"
           >
             Checkout
           </Button>

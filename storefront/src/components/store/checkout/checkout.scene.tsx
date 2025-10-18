@@ -95,7 +95,7 @@ export function CheckoutScene() {
                   {({ nextStep, goToStep }) => (
                     <>
                       <Shipping onContinue={nextStep} />
-                      <OrderSummary onEdit={() => goToStep("shopping-bag")} />
+                      <OrderSummary onEdit={() => goToStep("shopping-bag")} showSurcharge={false} />
                     </>
                   )}
                 </Wizard.Actions>
@@ -114,7 +114,7 @@ export function CheckoutScene() {
                         setSubmitError={setSubmitError}
                         clearSavedData={clearSavedData}
                       />
-                      <OrderSummary onEdit={() => goToStep("shopping-bag")} />
+                      <OrderSummary onEdit={() => goToStep("shopping-bag")} showSurcharge={true} />
                     </>
                   )}
                 </Wizard.Actions>

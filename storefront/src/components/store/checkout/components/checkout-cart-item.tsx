@@ -11,6 +11,7 @@ interface CheckoutCartItemProps {
   thumbnail?: string | null
   title: string
   variantTitle?: string
+  description?: string
   quantity: number
   unitPrice: number
   currencyCode: string
@@ -26,6 +27,7 @@ export function CheckoutCartItem({
   thumbnail,
   title,
   variantTitle,
+  description,
   quantity,
   unitPrice,
   currencyCode,
@@ -89,6 +91,11 @@ export function CheckoutCartItem({
             {variantTitle}
           </p>
         )}
+        {description && variant === 'shopping-bag' && (
+          <p className="text-sm text-black line-clamp-1">
+            {description}
+          </p>
+        )}
         {variant === 'order-summary' && (
           <p className="text-[12px] text-[#6f6f6f]">Amount: {quantity}</p>
         )}
@@ -100,7 +107,7 @@ export function CheckoutCartItem({
               <button
                 onClick={() => onUpdateQuantity(id, quantity - 1)}
                 disabled={isUpdating || quantity <= 1}
-                className="flex-1 h-full flex items-center justify-center hover:bg-gray-100 transition-colors disabled:opacity-50"
+                className="flex-1 h-full flex items-center justify-center hover:bg-gray-100 transition-colors disabled:opacity-50 cursor-pointer"
               >
                 <Minus className="w-3 h-3" />
               </button>
@@ -108,7 +115,7 @@ export function CheckoutCartItem({
               <button
                 onClick={() => onUpdateQuantity(id, quantity + 1)}
                 disabled={isUpdating}
-                className="flex-1 h-full flex items-center justify-center hover:bg-gray-100 transition-colors disabled:opacity-50"
+                className="flex-1 h-full flex items-center justify-center hover:bg-gray-100 transition-colors disabled:opacity-50 cursor-pointer"
               >
                 <Plus className="w-3 h-3" />
               </button>
@@ -116,7 +123,7 @@ export function CheckoutCartItem({
             <button
               onClick={() => onRemove(id)}
               disabled={isUpdating}
-              className="p-1 hover:bg-gray-100 rounded transition-colors disabled:opacity-50"
+              className="p-1 hover:bg-gray-100 rounded transition-colors disabled:opacity-50 cursor-pointer"
             >
               <Trash2 className="w-6 h-6 text-gray-600" />
             </button>

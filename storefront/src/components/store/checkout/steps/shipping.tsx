@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { Input } from '@lib/components/ui/input'
 import { Checkbox } from '@lib/components/ui/checkbox'
 import { Button } from '@lib/components/ui/button'
@@ -8,6 +8,7 @@ import { Card, CardContent } from '@lib/components/ui/card'
 import { RadioGroup, RadioGroupItem } from '@lib/components/ui/radio-group'
 import { Label } from '@lib/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@lib/components/ui/select'
+import { Skeleton } from '@lib/components/ui/skeleton'
 import { useCheckoutFormContext } from '~/contexts/checkout-form-context'
 import { AddressAutocomplete } from '../components/address-autocomplete'
 import { CheckoutSectionHeader } from '../components/checkout-section-header'
@@ -26,9 +27,9 @@ export function Shipping({ onContinue }: ShippingProps) {
   const { cart } = useCart()
   const [shippingOptions, setShippingOptions] = useState<HttpTypes.StoreCartShippingOption[]>([])
   const [loadingOptions, setLoadingOptions] = useState(false)
+  const hasLoadedOptions = useRef(false)
 
   const billingAddressSameAsShipping = watch('billingAddressSameAsShipping')
-  const safeToLeave = watch('safeToLeave')
   const shippingAddress1 = watch('shippingAddress.address1')
   const billingAddress1 = watch('billingAddress.address1') || ''
   const selectedShippingMethodId = watch('shippingMethodId')
@@ -36,16 +37,17 @@ export function Shipping({ onContinue }: ShippingProps) {
   // Get available countries from cart region
   const availableCountries = cart?.region?.countries || []
 
-  // Fetch shipping options when cart is available
+  // Fetch shipping options when cart is available (only once)
   useEffect(() => {
     async function loadShippingOptions() {
-      if (!cart?.id) return
+      if (!cart?.id || hasLoadedOptions.current) return
       
       setLoadingOptions(true)
       try {
         const options = await listCartShippingMethods(cart.id)
         if (options && options.length > 0) {
           setShippingOptions(options)
+          hasLoadedOptions.current = true
           // Auto-select first option if none selected
           if (!selectedShippingMethodId) {
             setValue('shippingMethodId', options[0].id)
@@ -196,22 +198,6 @@ export function Shipping({ onContinue }: ShippingProps) {
             </div>
           </div>
 
-          {/* Safe to leave checkbox */}
-          <div className="flex items-center gap-[15px]">
-            <Checkbox
-              id="safe-to-leave"
-              checked={safeToLeave}
-              onCheckedChange={(checked) => setValue('safeToLeave', checked as boolean)}
-              className="size-5 rounded data-[state=checked]:bg-[#C5AF71] data-[state=checked]:border-[#C5AF71]"
-            />
-            <label
-              htmlFor="safe-to-leave"
-              className="text-[16px] text-[#6f6f6f] cursor-pointer"
-            >
-              Safe to leave at front door if I'm not home.
-            </label>
-          </div>
-
           {/* Billing Address Section */}
           <div className="space-y-[26px] w-[708px]">
             <h4 className="text-[16px] font-medium">Billing Address</h4>
@@ -334,7 +320,17 @@ export function Shipping({ onContinue }: ShippingProps) {
             <h4 className="text-base font-medium">Shipping Method</h4>
             
             {loadingOptions ? (
-              <div className="text-base text-[#6f6f6f]">Loading shipping options...</div>
+              <div className="space-y-3">
+                {[1, 2].map((i) => (
+                  <div key={i} className="flex items-center justify-between p-4 border-2 border-gray-200 rounded-lg">
+                    <div className="flex items-center gap-4 flex-1">
+                      <Skeleton className="h-5 w-5 rounded-full" />
+                      <Skeleton className="h-4 w-32" />
+                    </div>
+                    <Skeleton className="h-4 w-16" />
+                  </div>
+                ))}
+              </div>
             ) : shippingOptions.length === 0 ? (
               <div className="text-base text-[#6f6f6f]">No shipping options available</div>
             ) : (
@@ -343,30 +339,37 @@ export function Shipping({ onContinue }: ShippingProps) {
                 onValueChange={(value) => setValue('shippingMethodId', value)}
                 className="space-y-3"
               >
-                {shippingOptions.map((option) => (
-                  <Label
-                    key={option.id}
-                    htmlFor={option.id}
-                    className={`flex items-center justify-between p-4 border-2 rounded-lg cursor-pointer transition-colors ${
-                      selectedShippingMethodId === option.id
-                        ? 'border-[#C5AF71] bg-[#C5AF71]/5'
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
-                  >
-                    <div className="flex items-center gap-4">
-                      <RadioGroupItem value={option.id} id={option.id} />
-                      <div>
-                        <p className="text-base font-medium">{option.name}</p>
+                {shippingOptions.map((option) => {
+                  const isCompanyOrganised = option.id === 'so_01K799XW5HXJQST9CWNH06WQSR'
+                  return (
+                    <Label
+                      key={option.id}
+                      htmlFor={option.id}
+                      className={`flex items-center justify-between p-4 border-2 rounded-lg cursor-pointer transition-colors ${
+                        selectedShippingMethodId === option.id
+                          ? 'border-[#C5AF71] bg-[#C5AF71]/5'
+                          : 'border-gray-200 hover:border-gray-300'
+                      }`}
+                    >
+                      <div className="flex items-center gap-4">
+                        <RadioGroupItem value={option.id} id={option.id} />
+                        <div>
+                          <p className="text-base font-medium">{option.name}</p>
+                        </div>
                       </div>
-                    </div>
-                    <div className="text-base font-semibold">
-                      {convertToLocale({ 
-                        amount: option.amount || 0, 
-                        currency_code: cart?.currency_code || 'USD' 
-                      })}
-                    </div>
-                  </Label>
-                ))}
+                      <div className="text-base font-semibold">
+                        {isCompanyOrganised ? (
+                          <span className="text-[#6f6f6f]">Determined at time of shipping</span>
+                        ) : (
+                          convertToLocale({ 
+                            amount: option.amount || 0, 
+                            currency_code: cart?.currency_code || 'USD' 
+                          })
+                        )}
+                      </div>
+                    </Label>
+                  )
+                })}
               </RadioGroup>
             )}
             {errors.shippingMethodId && (
@@ -378,7 +381,7 @@ export function Shipping({ onContinue }: ShippingProps) {
           <Button
             onClick={handleContinue}
             disabled={isSubmitting || loadingOptions}
-            className="w-full h-[49px] bg-black hover:bg-gray-800 text-white text-base font-semibold rounded-[24px] disabled:opacity-50"
+            className="w-full h-[49px] bg-black hover:bg-gray-800 text-white text-base font-semibold rounded-[24px] disabled:opacity-50 cursor-pointer"
           >
             Continue to Payment
           </Button>
