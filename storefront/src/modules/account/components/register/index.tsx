@@ -1,5 +1,6 @@
-import { useActionState } from "react";
 "use client"
+
+import { useActionState } from "react";
 
 import Input from "@modules/common/components/input"
 import { LOGIN_VIEW } from "@modules/account/templates/login-template"
