@@ -21,6 +21,8 @@ import { GalleryPage } from './globals/GalleryPage'
 import { AboutPage } from './globals/AboutPage'
 import { ContactPage } from './globals/ContactPage'
 import { FooterGlobal } from './globals/FooterGlobal'
+import { StoreRangePage } from './globals/StoreRangePage'
+import { HeaterListPage } from './globals/HeaterListPage'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -45,6 +47,8 @@ export default buildConfig({
     AboutPage,
     ContactPage,
     FooterGlobal,
+    StoreRangePage,
+    HeaterListPage,
   ],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',

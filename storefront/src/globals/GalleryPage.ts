@@ -6,6 +6,9 @@ export const GalleryPage: GlobalConfig = {
   access: {
     read: () => true,
   },
+  admin: {
+    group: 'Main',
+  },
   fields: [
     {
       name: 'sections',

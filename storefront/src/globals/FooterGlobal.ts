@@ -6,6 +6,9 @@ export const FooterGlobal: GlobalConfig = {
   access: {
     read: () => true,
   },
+  admin: {
+    group: 'Main',
+  },
   fields: [
     {
       name: 'getInTouch',

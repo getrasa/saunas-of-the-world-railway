@@ -6,6 +6,9 @@ export const EquipmentPage: GlobalConfig = {
   access: {
     read: () => true,
   },
+  admin: {
+    group: 'Main',
+  },
   fields: [
     {
       name: 'hero',

@@ -43,24 +43,20 @@ export const Footer = ({ data }: FooterProps) => {
       <div className="container grid grid-cols-12 justify-between gap-4 gap-y-16 px-4 xl:gap-16">
         <div className="col-span-12 sm:col-span-6 lg:col-span-4">
           <Section title="Get in touch" gap={24}>
-            {getInTouch && (
-              <>
-                <IconText
-                  icon={<Briefcase size={18} />}
-                  text={getInTouch.address}
-                />
-                <IconText
-                  icon={<Mail size={18} />}
-                  email
-                  text={getInTouch.email}
-                />
-                <IconText icon={<Phone size={18} />} text={getInTouch.phone} />
-                <IconText
-                  icon={<Clock size={18} />}
-                  text={getInTouch.businessHours}
-                />
-              </>
-            )}
+            <IconText
+              icon={<Briefcase size={18} />}
+              text={getInTouch.address}
+            />
+            <IconText
+              icon={<Mail size={18} />}
+              email
+              text={getInTouch.email}
+            />
+            <IconText icon={<Phone size={18} />} text={getInTouch.phone} />
+            <IconText
+              icon={<Clock size={18} />}
+              text={getInTouch.businessHours}
+            />
           </Section>
         </div>
         <div className="col-span-12 sm:col-span-6 lg:col-span-3">

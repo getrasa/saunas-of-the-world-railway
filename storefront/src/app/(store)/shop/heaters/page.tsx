@@ -3,6 +3,7 @@ import { getRegion } from "@lib/data/regions"
 import { HeaterListScene } from "~/components/store/heaters/list/heater-list.scene"
 import { type ProductCardData } from "~/components/store/product/list/product-card"
 import type { HeaterProduct, StockStatus } from "~/types/medusa-product"
+import { getHeaterListPageData } from "~/lib/data/heater-list-page"
 
 export const revalidate = 0
 
@@ -22,6 +23,9 @@ interface HeatersPageProps {
 export default async function HeatersPage(props: HeatersPageProps) {
   const searchParams = await props.searchParams;
   const countryCode = "au"
+
+  // Fetch CMS hero data
+  const { hero } = await getHeaterListPageData()
 
   // Determine which subcategory to filter by (default: finnish)
   const filter = (searchParams.filter === "bio" ? "bio" : "finnish") as HeaterFilter
@@ -115,5 +119,5 @@ export default async function HeatersPage(props: HeatersPageProps) {
     }
   })
 
-  return <HeaterListScene products={mapped} countryCode={countryCode} />
+  return <HeaterListScene products={mapped} countryCode={countryCode} hero={hero} />
 }

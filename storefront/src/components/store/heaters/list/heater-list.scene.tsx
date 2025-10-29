@@ -7,14 +7,15 @@ import { ProductFilter, type FilterType } from "~/components/store/product/list/
 import { ProductCard, type ProductCardData } from "~/components/store/product/list/product-card"
 import { useCart } from "~/contexts/cart-context"
 import { addToCart } from "@lib/data/cart"
-import { imageUrls } from "~/lib/imageUrls"
+import type { HeaterListHeroData } from "~/lib/data/heater-list-page"
 
 interface HeaterProductListProps {
   products: ProductCardData[]
   countryCode: string
+  hero: HeaterListHeroData | null
 }
 
-export function HeaterListScene({ products, countryCode }: HeaterProductListProps) {
+export function HeaterListScene({ products, countryCode, hero }: HeaterProductListProps) {
   const { refreshCart, openCart } = useCart()
   const [addingProductId, setAddingProductId] = useState<string | null>(null)
   const [activeFilters, setActiveFilters] = useState<Record<FilterType, string | null>>({
@@ -109,19 +110,17 @@ export function HeaterListScene({ products, countryCode }: HeaterProductListProp
 
   return (
     <div className="flex flex-col">
-      <StoreHero
-        title="EOS Sauna Heaters"
-        subtitle="German Engineering, Exceptional Comfort"
-        description="Experience premium quality with EOS sauna heaters, combining sleek design, durable materials, and advanced air convection for a perfectly balanced sauna climate."
-        backgroundImage={imageUrls.heatersHero}
-        ctaText="EXPLORE NOW"
-        ctaHref="#products"
-        features={[
-          "Floor-standing, wall-mounted, or concealed models",
-          "Power options from 3 to 72 kW",
-          "Ideal for sauna rooms from 3 to 160 m³",
-        ]}
-      />
+      {hero && (
+        <StoreHero
+          title={hero.title}
+          subtitle={hero.subtitle}
+          description={hero.description}
+          backgroundImage={hero.backgroundImageUrl}
+          ctaText={hero.ctaText}
+          ctaHref={hero.ctaHref}
+          features={hero.features}
+        />
+      )}
 
       <div className="bg-neutral-100">
         <div className="mx-auto max-w-[1512px]">
