@@ -1,6 +1,6 @@
 "use client";
 
-import { type FC } from "react";
+import { type FC, type JSX } from "react";
 import { useRouter } from "next/navigation";
 import SquareButton from "~/components/ui/buttons/square-button";
 import Image from "next/image";

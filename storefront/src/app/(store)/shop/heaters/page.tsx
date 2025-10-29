@@ -16,12 +16,13 @@ const HEATER_CATEGORIES = {
 type HeaterFilter = "finnish" | "bio"
 
 interface HeatersPageProps {
-  searchParams: { filter?: string }
+  searchParams: Promise<{ filter?: string }>
 }
 
-export default async function HeatersPage({ searchParams }: HeatersPageProps) {
+export default async function HeatersPage(props: HeatersPageProps) {
+  const searchParams = await props.searchParams;
   const countryCode = "au"
-  
+
   // Determine which subcategory to filter by (default: finnish)
   const filter = (searchParams.filter === "bio" ? "bio" : "finnish") as HeaterFilter
   const categoryId = filter === "bio" ? HEATER_CATEGORIES.bio : HEATER_CATEGORIES.finnish

@@ -12,12 +12,12 @@ export const metadata: Metadata = {
 }
 
 interface OrderConfirmationPageProps {
-  params: {
+  params: Promise<{
     orderId: string
-  }
-  searchParams: {
+  }>
+  searchParams: Promise<{
     payment_method?: string
-  }
+  }>
 }
 
 async function getOrder(id: string) {
@@ -35,12 +35,11 @@ async function getOrder(id: string) {
   } as unknown as HttpTypes.StoreOrder
 }
 
-export default async function OrderConfirmationPage({
-  params,
-  searchParams,
-}: OrderConfirmationPageProps) {
+export default async function OrderConfirmationPage(props: OrderConfirmationPageProps) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   const order = await getOrder(params.orderId)
-  
+
   if (!order) {
     return notFound()
   }

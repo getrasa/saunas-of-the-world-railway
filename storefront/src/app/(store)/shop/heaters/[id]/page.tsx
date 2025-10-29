@@ -7,7 +7,8 @@ import { toKebabCase } from "~/lib/utils"
 
 export const revalidate = 0
 
-export default async function ProductDetailsPage({ params }: { params: { id: string } }) {
+export default async function ProductDetailsPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const countryCode = "au"
   const region = await getRegion(countryCode)
 
@@ -31,7 +32,7 @@ export default async function ProductDetailsPage({ params }: { params: { id: str
 
   // Fetch related products from same collection
   let relatedProducts: HeaterProduct[] = []
-  
+
   if (product.collection_id) {
     const { products: collectionProducts } = await sdk.store.product.list(
       { 
