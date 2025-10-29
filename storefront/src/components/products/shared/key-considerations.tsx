@@ -1,7 +1,24 @@
 import type { ReactNode } from "react";
 import { DrinkWaterIcon, ListenToBodyIcon, HealthConditionIcon } from "~/components/custom-icons";
 
-export const KeyConsiderations = () => {
+interface KeyConsiderationData {
+  title: string;
+  content: string;
+}
+
+interface KeyConsiderationsProps {
+  introText: string;
+  hydration: KeyConsiderationData;
+  listenToBody: KeyConsiderationData;
+  healthConditions: KeyConsiderationData;
+}
+
+export const KeyConsiderations = ({
+  introText,
+  hydration,
+  listenToBody,
+  healthConditions,
+}: KeyConsiderationsProps) => {
   const getConsideration = (
     icon: ReactNode,
     title: string,
@@ -23,24 +40,23 @@ export const KeyConsiderations = () => {
           Key Considerations
         </span>
         <span className="mt-[12px]">
-          Here are some key considerations for you to take into account when
-          using sauna.
+          {introText}
         </span>
         <div className="flex w-full gap-6 md:gap-12 lg:gap-[85px] md:flex-row flex-col">
           {getConsideration(
             <DrinkWaterIcon />,
-            "Hydration",
-            "Stay well-hydrated before, during, and after your sauna session. Drink water or electrolyte-rich beverages to replenish fluids lost through sweating.",
+            hydration.title,
+            hydration.content,
           )}
           {getConsideration(
             <ListenToBodyIcon />,
-            "Listen to Your Body",
-            "Pay attention to how your body responds to the heat. If you start to feel dizzy, lightheaded, or uncomfortable, exit the sauna immediately. Always prioritize your comfort and well-being.",
+            listenToBody.title,
+            listenToBody.content,
           )}
           {getConsideration(
             <HealthConditionIcon />,
-            "Health Conditions",
-            "If you have underlying health conditions or concerns, consult with a healthcare professional before using a sauna regularly. Sauna use may not be suitable for everyone, especially those with cardiovascular issues, high blood pressure, or certain skin conditions.",
+            healthConditions.title,
+            healthConditions.content,
           )}
         </div>
       </div>

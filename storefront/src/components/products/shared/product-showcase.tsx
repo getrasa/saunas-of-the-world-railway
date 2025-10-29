@@ -12,7 +12,10 @@ interface ProductShowcaseProps {
   description: string;
   imagePath: string;
   imageAlt: string;
-  buttonHref: string;
+  showButton?: boolean;
+  buttonText?: string;
+  buttonHref?: string;
+  openInNewTab?: boolean;
 }
 
 export const ProductShowcase = ({
@@ -21,7 +24,10 @@ export const ProductShowcase = ({
   description,
   imagePath,
   imageAlt,
-  buttonHref,
+  showButton = true,
+  buttonText = "Explore",
+  buttonHref = "/",
+  openInNewTab = false,
 }: ProductShowcaseProps) => {
   const isLeft = variant === "left";
 
@@ -45,11 +51,17 @@ export const ProductShowcase = ({
       <span className="py-6 leading-7 sm:leading-9">
         {description}
       </span>
-      <div>
-        <Link href={buttonHref}>
-          <SquareButton text="Explore" black />
-        </Link>
-      </div>
+      {showButton && (
+        <div>
+          <Link 
+            href={buttonHref}
+            target={openInNewTab ? "_blank" : undefined}
+            rel={openInNewTab ? "noopener noreferrer" : undefined}
+          >
+            <SquareButton text={buttonText} black />
+          </Link>
+        </div>
+      )}
     </div>
   );
 
