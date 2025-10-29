@@ -18,6 +18,7 @@ export interface ProductData {
   title: string
   description: string
   imageUrl: string
+  stretchHorizontally: boolean
   showButton: boolean
   buttonText: string
   buttonHref: string
@@ -51,6 +52,7 @@ interface ProductRaw {
   title: string
   description: string
   image: string | MediaType
+  stretchHorizontally?: boolean
   showButton?: boolean
   buttonText?: string
   buttonHref?: string
@@ -116,6 +118,7 @@ export async function getProductPageData(slug: string): Promise<ProductPageData>
               title: product.title || '',
               description: product.description || '',
               imageUrl: image.url,
+              stretchHorizontally: product.stretchHorizontally || false,
               showButton: product.showButton !== false,
               buttonText: product.buttonText || 'Explore',
               buttonHref: product.buttonHref || '/',

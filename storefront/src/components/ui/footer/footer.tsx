@@ -4,44 +4,89 @@ import Link from "next/link";
 import React, { type ReactNode } from "react";
 import { Briefcase, Mail, Phone, Clock } from "lucide-react";
 import { CtaButton } from "~/components/ui/buttons/cta-button";
+import type { FooterData } from "~/lib/data/footer";
 
-export const Footer = () => {
+interface FooterProps {
+  data: FooterData | null;
+}
+
+export const Footer = ({ data }: FooterProps) => {
+  // Provide fallback defaults if CMS data is not available
+  const getInTouch = data?.getInTouch || {
+    address: "PO Box 249 Nerang QLD 4211",
+    email: "saunasworld.au@gmail.com",
+    phone: "+61 422-062-294",
+    businessHours: "Mon-Sat by appointment only",
+  };
+  
+  const categories = data?.categories && data.categories.length > 0 
+    ? data.categories 
+    : [
+        { label: "Saunas", href: "/products/saunas", openInNewTab: false },
+        { label: "Ice Baths & Hot Tubs", href: "/products/baths", openInNewTab: false },
+        { label: "Infrared", href: "/products/infrared", openInNewTab: false },
+        { label: "Equipment", href: "/products/equipment", openInNewTab: false },
+        { label: "Materials & Accessories", href: "/products/materials", openInNewTab: false },
+        { label: "Services", href: "/services", openInNewTab: false },
+      ];
+  
+  const aboutLinks = data?.aboutLinks && data.aboutLinks.length > 0
+    ? data.aboutLinks
+    : [
+        { label: "About us", href: "/about", openInNewTab: false },
+        { label: "Privacy Policy", href: "/terms/privacy-policy", openInNewTab: false },
+        { label: "Disclaimer", href: "/products/terms/disclaimer", openInNewTab: false },
+      ];
+
   return (
     <footer className="flex w-full justify-center bg-black py-16 text-white">
       <div className="container grid grid-cols-12 justify-between gap-4 gap-y-16 px-4 xl:gap-16">
         <div className="col-span-12 sm:col-span-6 lg:col-span-4">
           <Section title="Get in touch" gap={24}>
-            <IconText
-              icon={<Briefcase size={18} />}
-              text="PO Box 249 Nerang QLD 4211"
-            />
-            <IconText
-              icon={<Mail size={18} />}
-              email
-              text="saunasworld.au@gmail.com"
-            />
-            <IconText icon={<Phone size={18} />} text="+61 422-062-294" />
-            <IconText
-              icon={<Clock size={18} />}
-              text="Mon-Sat by appointment only"
-            />
+            {getInTouch && (
+              <>
+                <IconText
+                  icon={<Briefcase size={18} />}
+                  text={getInTouch.address}
+                />
+                <IconText
+                  icon={<Mail size={18} />}
+                  email
+                  text={getInTouch.email}
+                />
+                <IconText icon={<Phone size={18} />} text={getInTouch.phone} />
+                <IconText
+                  icon={<Clock size={18} />}
+                  text={getInTouch.businessHours}
+                />
+              </>
+            )}
           </Section>
         </div>
         <div className="col-span-12 sm:col-span-6 lg:col-span-3">
           <Section title="Categories" gap={8}>
-            <LinkPage href="/products/saunas">Saunas</LinkPage>
-            <LinkPage href="/products/baths">Ice Baths & Hot Tubs</LinkPage>
-            <LinkPage href="/products/infrared">Infrared</LinkPage>
-            <LinkPage href="/products/equipment">Equipment</LinkPage>
-            <LinkPage href="/products/materials">Materials & Accessories</LinkPage>
-            <LinkPage href="/services">Services</LinkPage>
+            {categories.map((link, index) => (
+              <LinkPage 
+                key={index} 
+                href={link.href}
+                openInNewTab={link.openInNewTab}
+              >
+                {link.label}
+              </LinkPage>
+            ))}
           </Section>
         </div>
         <div className="col-span-12 sm:col-span-6 lg:col-span-2">
           <Section title="About" gap={8}>
-            <LinkPage href="/about">About us</LinkPage>
-            <LinkPage href="/terms/privacy-policy">Privacy Policy</LinkPage>
-            <LinkPage href="/products/terms/disclaimer">Disclaimer</LinkPage>
+            {aboutLinks.map((link, index) => (
+              <LinkPage 
+                key={index} 
+                href={link.href}
+                openInNewTab={link.openInNewTab}
+              >
+                {link.label}
+              </LinkPage>
+            ))}
           </Section>
         </div>
         <div className="col-span-12 sm:col-span-6 lg:col-span-3">
@@ -97,12 +142,14 @@ const IconText = (props: {
   );
 };
 
-const LinkPage = (props: { children: ReactNode; href: string }) => {
-  const { children, href } = props;
+const LinkPage = (props: { children: ReactNode; href: string; openInNewTab?: boolean }) => {
+  const { children, href, openInNewTab } = props;
   return (
     <Link
       className="decoration-1 underline-offset-2 hover:underline"
       href={href || "#"}
+      target={openInNewTab ? "_blank" : undefined}
+      rel={openInNewTab ? "noopener noreferrer" : undefined}
     >
       {children}
     </Link>

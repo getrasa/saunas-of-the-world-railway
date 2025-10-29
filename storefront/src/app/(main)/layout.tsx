@@ -2,7 +2,7 @@ import { getBaseURL } from "@lib/util/env"
 import { Metadata } from "next"
 import "styles/globals.css"
 import { FollowUs } from "~/components/home";
-import { Footer } from "~/components/ui/footer/footer";
+import { FooterWrapper } from "~/components/ui/footer/footer-wrapper";
 import { NavigationBar } from "~/components/ui/navigation";
 
 export const metadata: Metadata = {
@@ -22,7 +22,7 @@ export default function MainLayout({
           {children}
         </main>
         <FollowUs />
-        <Footer />
+        <FooterWrapper />
       </body>
     </html>
   );

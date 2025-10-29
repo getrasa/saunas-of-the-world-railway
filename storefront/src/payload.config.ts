@@ -16,6 +16,11 @@ import { BathsPage } from './globals/BathsPage'
 import { InfraredPage } from './globals/InfraredPage'
 import { EquipmentPage } from './globals/EquipmentPage'
 import { MaterialsPage } from './globals/MaterialsPage'
+import { ServicesPage } from './globals/ServicesPage'
+import { GalleryPage } from './globals/GalleryPage'
+import { AboutPage } from './globals/AboutPage'
+import { ContactPage } from './globals/ContactPage'
+import { FooterGlobal } from './globals/FooterGlobal'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -28,7 +33,19 @@ export default buildConfig({
     },
   },
   collections: [Users, Media],
-  globals: [Homepage, SaunasPage, BathsPage, InfraredPage, EquipmentPage, MaterialsPage],
+  globals: [
+    Homepage, 
+    SaunasPage, 
+    BathsPage, 
+    InfraredPage, 
+    EquipmentPage, 
+    MaterialsPage,
+    ServicesPage,
+    GalleryPage,
+    AboutPage,
+    ContactPage,
+    FooterGlobal,
+  ],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {

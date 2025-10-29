@@ -1,24 +1,15 @@
-"use client";
-
 import React from "react";
-import {
-  BathsGallerySection,
-} from "./gallery.baths";
-import {
-  CustomBuiltSaunaGallerySection,
-} from "./gallery.custom";
-import {
-  InfraredGallerySection,
-} from "./gallery.infrared";
+import { GallerySection } from "./gallery-section";
+import { getGalleryPageData } from "~/lib/data/gallery-page";
 
-export interface GallerySceneProps {}
+export const GalleryScene = async () => {
+  const { sections } = await getGalleryPageData();
 
-export const GalleryScene: React.FC<GallerySceneProps> = () => {
   return (
     <div className="container flex flex-col gap-32 py-16">
-      <CustomBuiltSaunaGallerySection />
-      <BathsGallerySection />
-      <InfraredGallerySection />
+      {sections.map((section, index) => (
+        <GallerySection key={index} section={section} />
+      ))}
     </div>
   );
 };
