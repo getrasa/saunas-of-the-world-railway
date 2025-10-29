@@ -1,4 +1,5 @@
 // storage-adapter-import-placeholder
+import { s3Storage } from '@payloadcms/storage-s3'
 import { mongooseAdapter } from '@payloadcms/db-mongodb' // database-adapter-import
 // import { payloadCloudPlugin } from '@payloadcms/payload-cloud'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
@@ -35,5 +36,22 @@ export default buildConfig({
   plugins: [
     // payloadCloudPlugin(),
     // storage-adapter-placeholder
+    s3Storage({
+      bucket: process.env.S3_BUCKET || '',
+      collections: {
+        media: {
+          prefix: 'media',
+        },
+      },
+      config: {
+        endpoint: process.env.S3_ENDPOINT,
+        region: process.env.S3_REGION || 'ap-southeast-1', // Southeast Asia region
+        credentials: {
+          accessKeyId: process.env.S3_ACCESS_KEY_ID || '',
+          secretAccessKey: process.env.S3_SECRET_ACCESS_KEY || '',
+        },
+        forcePathStyle: true, // Critical for MinIO! This fixes DNS lookup errors
+      },
+    }),
   ],
 })
