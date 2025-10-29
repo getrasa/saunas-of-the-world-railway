@@ -1,58 +1,42 @@
-"use client";
-
 import React from "react";
 import ProductHero from "../shared/product-hero";
 import HorizontalProduct from "../shared/horizontal-product";
 import { HealthWellbeing } from "../shared/health-wellbeing";
 import ContactUs from "~/components/ui/contact-us/contact-us";
-import { imageUrls } from "~/lib/imageUrls";
+import { getBathsPageData } from "~/lib/data/product-page";
 
-export interface BathsSceneProps {}
+export const BathsScene = async () => {
+  const { hero, products, healthWellbeing } = await getBathsPageData();
 
-export const BathsScene: React.FC<BathsSceneProps> = () => {
   return (
     <>
-      <ProductHero
-        title="Refreshing Ice Baths"
-        imagePath={imageUrls.bathsHero}
-      />
+      {hero && (
+        <ProductHero
+          title={hero.title}
+          imagePath={hero.imageUrl}
+        />
+      )}
       <div className="h-[50px]" />
-      <HorizontalProduct
-        variant="left"
-        title="Ice Baths"
-        description="Immerse yourself in the transformative benefits of our Ice Baths, featuring
-            a best materials for durability and aesthetics and advanced chiller system
-            that cools the water to 3 degrees, offering an invigorating and holistic
-            wellness solution. Embrace the chill, redefine well-being, and let our Ice
-            Baths elevate your cold water immersion journey."
-        imagePath={imageUrls.iceBaths}
-        imageAlt="Ice Baths"
-        buttonHref="/gallery?category=ice-baths"
-      />
-      <HealthWellbeing
-        title="Ice baths offer a range of health and wellness benefits."
-        points={[
-          <span key={1}>
-            They reduce inflammation and expedite recovery post-exercise by
-            causing blood vessels to constrict, which helps{" "}
-            <b>alleviate muscle soreness</b>.
-          </span>,
-          <span key={2}>
-            Regular cold water immersion can{" "}
-            <b>enhance circulation and heart health</b> by making the heart pump
-            more efficiently.
-          </span>,
-          <span key={3}>
-            The extreme cold triggers endorphin release, which{" "}
-            <b>boosts mood, reduces stress, and can numb pain</b>, benefiting
-            those with arthritis or injuries.
-          </span>,
-          <span key={4}>
-            Cold exposure may <b>strengthen the immune system</b>, improve
-            sleep, and aid weight management by activating brown fat cells.
-          </span>,
-        ]}
-      />
+      {products.map((product, index) => (
+        <HorizontalProduct
+          key={index}
+          variant={product.variant}
+          title={product.title}
+          description={product.description}
+          imagePath={product.imageUrl}
+          imageAlt={product.title}
+          showButton={product.showButton}
+          buttonText={product.buttonText}
+          buttonHref={product.buttonHref}
+          openInNewTab={product.openInNewTab}
+        />
+      ))}
+      {healthWellbeing && (
+        <HealthWellbeing
+          title={healthWellbeing.title}
+          points={healthWellbeing.benefits}
+        />
+      )}
       <div className="h-[120px]" />
       <ContactUs />
     </>

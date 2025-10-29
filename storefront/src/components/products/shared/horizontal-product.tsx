@@ -1,7 +1,7 @@
 "use client";
 
 import { type FC, type JSX } from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import SquareButton from "~/components/ui/buttons/square-button";
 import Image from "next/image";
 
@@ -12,7 +12,10 @@ interface HorizontalProductProps {
   description: string;
   imagePath: string;
   imageAlt: string;
+  showButton?: boolean;
+  buttonText?: string;
   buttonHref?: string;
+  openInNewTab?: boolean;
   variant?: ProductSideType;
   stretchHorizontally?: boolean;
   onClick?: () => void;
@@ -29,12 +32,14 @@ const HorizontalProduct: FC<HorizontalProductProps> = ({
   description,
   imagePath,
   imageAlt,
+  showButton = true,
+  buttonText = "Explore",
   buttonHref,
+  openInNewTab = false,
   variant = "left",
   stretchHorizontally = false,
   onClick,
 }): JSX.Element => {
-  const router = useRouter();
   const isLeft = variant === "left";
 
   const ProductImage = (
@@ -55,17 +60,23 @@ const HorizontalProduct: FC<HorizontalProductProps> = ({
     <div className="flex flex-col justify-center text-black md:aspect-square md:flex-1">
       <span className="f-title">{title}</span>
       <span className="py-6 leading-7 sm:leading-9">{description}</span>
-      {(buttonHref || onClick) && (
+      {showButton && (buttonHref || onClick) && (
         <div>
-          <SquareButton
-            text="Explore"
-            black
-            onClick={
-              onClick
-                ? onClick
-                : () => buttonHref && router.push(buttonHref)
-            }
-          />
+          {onClick ? (
+            <SquareButton
+              text={buttonText}
+              black
+              onClick={onClick}
+            />
+          ) : buttonHref ? (
+            <Link
+              href={buttonHref}
+              target={openInNewTab ? "_blank" : undefined}
+              rel={openInNewTab ? "noopener noreferrer" : undefined}
+            >
+              <SquareButton text={buttonText} black />
+            </Link>
+          ) : null}
         </div>
       )}
     </div>
