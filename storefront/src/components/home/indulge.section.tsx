@@ -1,7 +1,15 @@
 import type { JSX } from "react";
-import { imageUrls } from "~/lib/imageUrls";
+import type { IndulgeData } from "~/lib/data/homepage";
 
-export const Indulge = (): JSX.Element => {
+interface IndulgeProps {
+  data: IndulgeData | null;
+}
+
+export const Indulge = ({ data }: IndulgeProps): JSX.Element => {
+  if (!data) {
+    return <></>;
+  }
+
   return (
     <section className="flex w-full justify-center gap-4 bg-[#f2f2f2] pt-6 pb-8 text-[16px] lg:py-16">
       <div className="container flex flex-col items-center gap-8 lg:flex-row lg:gap-32">
@@ -9,25 +17,19 @@ export const Indulge = (): JSX.Element => {
           <div className="aspect-[628/480] w-full bg-slate-500">
             <img
               loading="lazy"
-              src={imageUrls.indulge}
+              src={data.imageUrl}
+              alt="Indulge section"
               className="h-full w-full object-cover"
             />
           </div>
         </div>
         <div className="flex flex-col justify-center text-black lg:aspect-square lg:flex-1">
-          <span className="text-[22px] lg:text-[26px]">
-            Indulge in <span className="font-bold">Serenity</span> and{" "}
-            <span className="font-bold">Luxury</span> with Your Private
-            Relaxation Oasis
-          </span>
+          <span 
+            className="text-[22px] lg:text-[26px]"
+            dangerouslySetInnerHTML={{ __html: data.titleHtml }}
+          />
           <span className="py-4 leading-7 sm:leading-9">
-            {`Unveil the remarkable advantages of owning a personal sanctuary
-            adorned with a state-of-the-art sauna and invigorating ice bath. A
-            haven where relaxation unfolds effortlessly, right in the comfort of
-            your own house. Elevate your property's value and desirability,
-            setting it apart with this luxury feature. Alternatively, transform
-            your oasis into an exclusive retreat for cherished moments with
-            loved ones.`}
+            {data.content}
           </span>
         </div>
       </div>

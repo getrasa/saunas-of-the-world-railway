@@ -7,7 +7,7 @@ interface HeroSlideProps {
   imageSrc: string;
   imageAlt: string;
   priority?: boolean;
-  brightness?: string;
+  brightness?: number;
   children?: ReactNode;
   className?: string;
 }
@@ -16,10 +16,12 @@ export const HeroSlide = ({
   imageSrc,
   imageAlt,
   priority = false,
-  brightness = "brightness-75",
+  brightness = 75,
   children,
   className = "",
 }: HeroSlideProps): JSX.Element => {
+  const brightnessValue = brightness / 100;
+
   return (
     <div className={`relative h-full w-full ${className}`}>
       <Image
@@ -28,7 +30,8 @@ export const HeroSlide = ({
         fill
         sizes="100vw"
         priority={priority}
-        className={`object-cover ${brightness}`}
+        className="object-cover"
+        style={{ filter: `brightness(${brightnessValue})` }}
       />
       {children && (
         <div className="absolute inset-0 z-10 flex flex-col items-center justify-center text-white">

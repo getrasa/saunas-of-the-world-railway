@@ -4,15 +4,18 @@ import { EosPartnerSection } from "./eos-partner.section";
 import { WhyUs } from "./why-us.section";
 import { OurOffering } from "./our-offering.section";
 import { Indulge } from "./indulge.section";
+import { getHomepageData } from "~/lib/data/homepage";
 
-export const HomeScene = (): JSX.Element => {
+export const HomeScene = async (): Promise<JSX.Element> => {
+  const { heroSlides, whyUs, ourOffering, indulge } = await getHomepageData();
+
   return (
     <>
-      <HeroSection />
+      <HeroSection slides={heroSlides} />
       <EosPartnerSection />
-      <WhyUs />
-      <OurOffering />
-      <Indulge />
+      <WhyUs data={whyUs} />
+      <OurOffering data={ourOffering} />
+      <Indulge data={indulge} />
     </>
   );
 };

@@ -25,7 +25,7 @@ interface HeroItemProps {
   imageSrc: string;
   imageAlt: string;
   priority?: boolean;
-  brightness?: string;
+  brightness?: number;
   children?: ReactNode;
   className?: string;
 }
@@ -106,7 +106,7 @@ const HeroItem = ({
   imageSrc, 
   imageAlt, 
   priority = false, 
-  brightness = "brightness-75",
+  brightness = 75,
   children, 
   className = "relative h-full w-screen" 
 }: HeroItemProps): JSX.Element => {
