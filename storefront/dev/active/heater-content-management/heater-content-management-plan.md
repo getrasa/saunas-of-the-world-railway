@@ -56,24 +56,28 @@ Implement CMS-driven content management for heater product pages, including adva
    - Add PDF icon/indicator
    - Show message if no downloads available
 
-### Phase 4: Custom Medusa Product Selector (Future Enhancement)
+### Phase 4: Custom Medusa Product Selector ✅ COMPLETED
 **Goal: Improve admin UX with product search**
 
-1. **Create API Route** (`src/app/api/medusa/heaters/route.ts`)
+1. **Create API Route** (`src/app/api/medusa/heaters/route.ts`) ✅
    - Fetch heater products from Medusa SDK
-   - Filter by heater category
-   - Return id, title, thumbnail
+   - Filter by heater category ID: `pcat_01K4VWWYER0DNWDBBQ3JBSX31R`
+   - Return id, title, handle, thumbnail
+   - Limit 100 products
 
-2. **Create Custom Field Component** (`src/components/payload/MedusaProductSelector.tsx`)
-   - Client component with searchable dropdown
-   - Fetch heaters from API route
-   - Display product name + thumbnail
-   - Set product ID on selection
-   - Auto-populate productName field
+2. **Create Custom Field Component** (`src/components/payload/MedusaProductSelector.tsx`) ✅
+   - Client component using `@payloadcms/ui` hooks
+   - Uses Payload's built-in `ReactSelect` component (best practice for Payload 3.0)
+   - Fetches heaters from API route on mount
+   - Searchable dropdown with product names
+   - Displays selected product thumbnail and ID
+   - Auto-populates productName field using `useFormFields` hook
+   - Graceful error handling with manual fallback input
 
-3. **Update HeaterContent Collection**
-   - Add custom component to `medusaProductId` field
-   - Make productName auto-populated and read-only
+3. **Update HeaterContent Collection** ✅
+   - Added custom component to `medusaProductId` field
+   - Made productName auto-populated and read-only
+   - Updated field labels and descriptions
 
 ---
 

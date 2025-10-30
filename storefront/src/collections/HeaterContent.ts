@@ -16,9 +16,12 @@ export const HeaterContent: CollectionConfig = {
       type: 'text',
       required: true,
       unique: true,
-      label: 'Medusa Product ID',
+      label: 'Medusa Product',
       admin: {
-        description: 'The product ID from Medusa (e.g., prod_01HXXX...). Find this in the Medusa admin panel.',
+        description: 'Select a heater product from Medusa. The product name will be auto-populated.',
+        components: {
+          Field: '/components/payload/MedusaProductSelector#MedusaProductSelector',
+        },
       },
     },
     {
@@ -27,7 +30,8 @@ export const HeaterContent: CollectionConfig = {
       required: true,
       label: 'Product Name',
       admin: {
-        description: 'The name of the heater product (for reference only, e.g., "BiO-MAX 9kW")',
+        readOnly: true,
+        description: 'Auto-populated from the selected Medusa product',
       },
     },
     {
