@@ -18,7 +18,7 @@ export const useProductsByCategory = ({
   const { data: category, isLoading: isCategoryLoading } = useCategoryByHandle(categoryHandle)
 
   return useQuery({
-    queryKey: ["products", "by-category", category?.id, searchQuery],
+    queryKey: ["products", "by-category", category?.id],
     queryFn: async () => {
       const params: any = {
         limit: 100,
@@ -28,11 +28,6 @@ export const useProductsByCategory = ({
       // Add category filter if we have a category ID
       if (category?.id) {
         params.category_id = [category.id]
-      }
-
-      // Add search query if provided
-      if (searchQuery) {
-        params.q = searchQuery
       }
 
       const response = await sdk.admin.product.list(params)

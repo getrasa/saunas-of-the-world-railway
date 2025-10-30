@@ -22,36 +22,36 @@ export const ProductMultiSelect = ({
   const [searchQuery, setSearchQuery] = useState("")
   const [isOpen, setIsOpen] = useState(false)
 
-  // Load all products from category (for displaying selected products)
-  const { data: allProducts = [] } = useProductsByCategory({
+  // Load all products from category
+  const { data: allProducts = [], isLoading } = useProductsByCategory({
     categoryHandle,
-    enabled: value.length > 0,
   })
-
-  // Load filtered products based on search
-  const { data: searchProducts = [], isLoading } = useProductsByCategory({
-    categoryHandle,
-    searchQuery,
-    enabled: isOpen && !!searchQuery,
-  })
-
-  // Use search results when searching, otherwise use all products
-  const products = searchQuery ? searchProducts : allProducts
-
-  // Filter out already selected products
-  const availableProducts = useMemo(() => {
-    return products.filter((product) => !value.includes(product.id))
-  }, [products, value])
 
   // Get selected product details
   const selectedProducts = useMemo(() => {
-    return products.filter((product) => value.includes(product.id))
-  }, [products, value])
+    return allProducts.filter((product) => value.includes(product.id))
+  }, [allProducts, value])
+
+  // Filter products: show all if empty, otherwise filter by startsWith
+  const availableProducts = useMemo(() => {
+    const unselected = allProducts.filter((product) => !value.includes(product.id))
+
+    if (!searchQuery) {
+      return unselected
+    }
+
+    const query = searchQuery.toLowerCase()
+
+    // Filter to only show products that start with the search query
+    return unselected.filter((product) =>
+      product.title.toLowerCase().startsWith(query)
+    )
+  }, [allProducts, value, searchQuery])
 
   const handleAddProduct = (productId: string) => {
     onChange([...value, productId])
     setSearchQuery("")
-    setIsOpen(false)
+    // Keep dropdown open for multi-selection
   }
 
   const handleRemoveProduct = (productId: string) => {
@@ -94,10 +94,10 @@ export const ProductMultiSelect = ({
         />
 
         {/* Dropdown results */}
-        {isOpen && searchQuery && (
-          <div className="absolute z-10 w-full mt-1 bg-white border rounded-md shadow-lg max-h-60 overflow-auto">
+        {isOpen && (
+          <div className="absolute z-10 w-full mt-1 bg-ui-bg-base border border-ui-border-base rounded-md shadow-lg max-h-60 overflow-auto">
             {isLoading ? (
-              <div className="p-3 text-sm text-gray-500">Loading...</div>
+              <div className="p-3 text-sm text-ui-fg-muted">Loading...</div>
             ) : availableProducts.length > 0 ? (
               <div>
                 {availableProducts.map((product) => (
@@ -105,7 +105,7 @@ export const ProductMultiSelect = ({
                     key={product.id}
                     type="button"
                     onClick={() => handleAddProduct(product.id)}
-                    className="w-full px-3 py-2 text-left hover:bg-gray-100 text-sm flex items-center gap-2"
+                    className="w-full px-3 py-2 text-left hover:bg-ui-bg-base-hover text-sm flex items-center gap-2 text-ui-fg-base"
                   >
                     {product.thumbnail && (
                       <img
@@ -119,7 +119,7 @@ export const ProductMultiSelect = ({
                 ))}
               </div>
             ) : (
-              <div className="p-3 text-sm text-gray-500">No products found</div>
+              <div className="p-3 text-sm text-ui-fg-muted">No products found</div>
             )}
           </div>
         )}

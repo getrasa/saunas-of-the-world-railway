@@ -19,9 +19,9 @@ interface HeaterWidgetProps {
 // Schema for heater metadata
 const HeaterMetadataSchema = z.object({
   peb: z.array(z.string()).optional().default([]),
-  size_from: z.coerce.number().optional(),
-  size_to: z.coerce.number().optional(),
-  rock_boxes: z.coerce.number().optional(),
+  size_from: z.coerce.number().optional(), // Allows floats like 4.5
+  size_to: z.coerce.number().optional(), // Allows floats like 4.5
+  rock_boxes: z.coerce.number().int().optional(), // Integer only
   controllers: z.array(z.string()).optional().default([]),
 })
 
@@ -105,7 +105,8 @@ const HeaterWidget = ({ data: product }: HeaterWidgetProps) => {
           <Input
             id="size_from"
             type="number"
-            placeholder="Enter minimum size"
+            step="any"
+            placeholder="Enter minimum size (e.g., 4.5)"
             {...register("size_from")}
           />
           {errors.size_from && (
@@ -121,7 +122,8 @@ const HeaterWidget = ({ data: product }: HeaterWidgetProps) => {
           <Input
             id="size_to"
             type="number"
-            placeholder="Enter maximum size"
+            step="any"
+            placeholder="Enter maximum size (e.g., 4.5)"
             {...register("size_to")}
           />
           {errors.size_to && (
@@ -137,6 +139,7 @@ const HeaterWidget = ({ data: product }: HeaterWidgetProps) => {
           <Input
             id="rock_boxes"
             type="number"
+            step="1"
             placeholder="Enter number of rock boxes"
             {...register("rock_boxes")}
           />
