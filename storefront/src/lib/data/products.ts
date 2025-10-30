@@ -1,8 +1,7 @@
 import { sdk } from "@lib/config"
 import { HttpTypes } from "@medusajs/types"
 import { getRegion } from "./regions"
-import { SortOptions } from "@modules/store/components/refinement-list/sort-products"
-import { sortProducts } from "@lib/util/sort-products"
+import { sortProducts, SortOptions } from "@lib/util/sort-products"
 
 export async function getProductsById({
   ids,

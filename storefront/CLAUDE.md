@@ -64,9 +64,10 @@ The app has **three main routing groups**:
 
 TypeScript paths configured in `tsconfig.json`:
 - `@lib/*` → `src/lib/*`
-- `@modules/*` → `src/modules/*`
 - `@/*` or `~/*` → `src/*`
 - `@payload-config` → `src/payload.config.ts`
+
+**Note**: The template's `src/modules/` directory has been removed along with all Headless UI dependencies. All UI components are now in `src/components/`.
 
 ### Data Layer Pattern
 
@@ -118,26 +119,22 @@ src/
 │   ├── (main)/          # Marketing pages (Payload CMS content)
 │   ├── (store)/         # E-commerce pages (Medusa content)
 │   ├── (payload)/       # CMS admin
-│   ├── [countryCode]/   # Dynamic region routing (legacy)
 │   └── api/             # API routes
 ├── collections/         # Payload CMS collections
 ├── globals/             # Payload CMS globals
+├── components/          # All UI components (custom, not from template)
+│   ├── ui/             # Shared UI components
+│   ├── store/          # Store-specific components
+│   ├── home/           # Homepage components
+│   └── ...             # Other feature components
 ├── lib/
 │   ├── data/           # Data fetching functions (CMS + Medusa)
 │   ├── config.ts       # Medusa SDK initialization
 │   ├── constants.tsx   # App constants
 │   └── util/           # Utility functions
-├── modules/            # Feature-based components
-│   ├── account/        # User account
-│   ├── cart/           # Shopping cart
-│   ├── checkout/       # Checkout flow
-│   ├── products/       # Product display
-│   ├── layout/         # Nav, footer
-│   └── common/         # Shared components
-├── components/         # Generic UI components
-├── types/             # TypeScript type definitions
-├── styles/            # Global CSS
-└── middleware.ts      # Region/country middleware
+├── types/              # TypeScript type definitions
+├── styles/             # Global CSS
+└── middleware.ts       # Region/country middleware
 ```
 
 ## Important Notes

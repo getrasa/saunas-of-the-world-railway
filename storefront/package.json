@@ -22,7 +22,6 @@
     "webpack": "^5"
   },
   "dependencies": {
-    "@headlessui/react": "^1.6.1",
     "@hookform/error-message": "^2.0.0",
     "@hookform/resolvers": "^5.2.1",
     "@medusajs/js-sdk": "preview",
