@@ -1,5 +1,4 @@
 import { useQuery } from "@tanstack/react-query"
-import { HttpTypes } from "@medusajs/types"
 import { sdk } from "../lib/client"
 
 export const useCategoryByHandle = (handle?: string) => {

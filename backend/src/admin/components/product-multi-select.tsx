@@ -1,7 +1,6 @@
 import { useState, useMemo } from "react"
 import { Input, Label, Badge, Button } from "@medusajs/ui"
 import { XMarkMini } from "@medusajs/icons"
-import { HttpTypes } from "@medusajs/types"
 import { useProductsByCategory } from "../hooks/use-products-by-category"
 
 interface ProductMultiSelectProps {

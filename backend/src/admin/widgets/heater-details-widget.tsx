@@ -18,11 +18,11 @@ interface HeaterWidgetProps {
 
 // Schema for heater metadata
 const HeaterMetadataSchema = z.object({
-  peb: z.array(z.string()).optional().default([]),
+  peb: z.array(z.string()).default([]),
   size_from: z.coerce.number().optional(), // Allows floats like 4.5
   size_to: z.coerce.number().optional(), // Allows floats like 4.5
   rock_boxes: z.coerce.number().int().optional(), // Integer only
-  controllers: z.array(z.string()).optional().default([]),
+  controllers: z.array(z.string()).default([]),
 })
 
 type HeaterMetadata = z.infer<typeof HeaterMetadataSchema>
@@ -68,7 +68,7 @@ const HeaterWidget = ({ data: product }: HeaterWidgetProps) => {
     setValue,
     watch,
     formState: { errors },
-  } = useForm<HeaterMetadata>({
+  } = useForm({
     resolver: zodResolver(HeaterMetadataSchema),
     defaultValues: {
       peb: parseMetadataArray(product.metadata?.peb),
