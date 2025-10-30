@@ -11,7 +11,7 @@ export const revalidate = 0
 const HEATER_CATEGORIES = {
   parent: "pcat_01K4VWWYER0DNWDBBQ3JBSX31R",
   finnish: "pcat_01K75PBSBP38K86G089E26XK06",
-  bio: "pcat_01K75PCSP9YXP908DXQK8XHFKH",
+  bio: "pcat_01K75PCSP9YXP908DXQK8XHFKW",
 } as const
 
 type HeaterFilter = "finnish" | "bio"
