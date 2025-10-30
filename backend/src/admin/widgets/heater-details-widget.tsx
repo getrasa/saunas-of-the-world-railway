@@ -27,6 +27,29 @@ const HeaterMetadataSchema = z.object({
 
 type HeaterMetadata = z.infer<typeof HeaterMetadataSchema>
 
+// Helper to safely parse metadata arrays (handles both old JSON string format and new array format)
+const parseMetadataArray = (value: any): string[] => {
+  if (Array.isArray(value)) {
+    // Check if array looks corrupted (contains single characters or JSON syntax characters)
+    const looksCorrupted = value.some(
+      (item) => typeof item === "string" && (item.length === 1 || item === "[" || item === "]" || item === '"')
+    )
+
+    if (looksCorrupted) {
+      // Data is corrupted (likely from old JSON string being split), return empty
+      return []
+    }
+
+    // New format: already an array, filter to only product IDs (start with "prod_")
+    return value.filter((item) => typeof item === "string" && item.startsWith("prod_"))
+  }
+  if (typeof value === "string") {
+    // Old format: JSON string, don't use it - return empty to force re-selection
+    return []
+  }
+  return []
+}
+
 const HeaterWidget = ({ data: product }: HeaterWidgetProps) => {
   // Check if product is in the Heaters category
   const isHeaterProduct = product.categories?.some(
@@ -48,11 +71,11 @@ const HeaterWidget = ({ data: product }: HeaterWidgetProps) => {
   } = useForm<HeaterMetadata>({
     resolver: zodResolver(HeaterMetadataSchema),
     defaultValues: {
-      peb: (product.metadata?.peb as string[]) || [],
+      peb: parseMetadataArray(product.metadata?.peb),
       size_from: (product.metadata?.size_from as number) || undefined,
       size_to: (product.metadata?.size_to as number) || undefined,
       rock_boxes: (product.metadata?.rock_boxes as number) || undefined,
-      controllers: (product.metadata?.controllers as string[]) || [],
+      controllers: parseMetadataArray(product.metadata?.controllers),
     },
   })
 
@@ -64,14 +87,23 @@ const HeaterWidget = ({ data: product }: HeaterWidgetProps) => {
 
   const onSubmit = async (values: HeaterMetadata) => {
     try {
+      // Filter out old heater-specific metadata to avoid conflicts with old format
+      const nonHeaterMetadata = Object.fromEntries(
+        Object.entries(product.metadata || {}).filter(
+          ([key]) => !["peb", "size_from", "size_to", "rock_boxes", "controllers"].includes(key)
+        )
+      )
+
+      // Merge non-heater metadata with new heater data
       await mutateAsync({
-        ...product.metadata,
-        peb: values.peb,
+        ...nonHeaterMetadata,
+        peb: values.peb || [],
         size_from: values.size_from,
         size_to: values.size_to,
         rock_boxes: values.rock_boxes,
-        controllers: values.controllers,
+        controllers: values.controllers || [],
       })
+
       toast.success("Success", {
         description: "Heater information updated successfully",
       })

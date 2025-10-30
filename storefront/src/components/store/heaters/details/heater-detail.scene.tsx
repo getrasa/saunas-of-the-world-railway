@@ -16,11 +16,11 @@ import { useCart } from "~/contexts/cart-context"
 import { addMultipleToCart } from "@lib/data/cart"
 import type { HeaterProductMetadata } from "~/types/medusa-product"
 import type { HeaterContentData } from "@lib/data/heater-content"
-import { toKebabCase } from "~/lib/utils"
 
 interface AccessoryProduct {
   id: string
   handle: string
+  title: string
   variantId: string
   price: number
 }
@@ -96,49 +96,41 @@ export function HeaterDetailScene({
     const groups = []
 
     // Controllers
-    if (metadata?.controllers) {
-      try {
-        const controllersArray = JSON.parse(metadata.controllers)
-        if (Array.isArray(controllersArray) && controllersArray.length > 0) {
-          const controllerOptions = [
-            { id: "none", label: "No controller", available: true },
-            ...controllersArray.map((controller: string) => ({
-              id: toKebabCase(controller),
-              label: controller,
-              available: !!accessoryProducts[toKebabCase(controller)],
-            })),
-          ]
-          groups.push({
-            title: "Controller (required)",
-            options: controllerOptions,
-          })
-        }
-      } catch (e) {
-        console.error("Failed to parse controllers metadata:", e)
-      }
+    if (metadata?.controllers && Array.isArray(metadata.controllers) && metadata.controllers.length > 0) {
+      const controllerOptions = [
+        { id: "none", label: "No controller", available: true },
+        ...metadata.controllers.map((controllerId: string) => {
+          const controllerProduct = accessoryProducts[controllerId]
+          return {
+            id: controllerId,
+            label: controllerProduct?.title || "Unknown Controller",
+            available: !!controllerProduct,
+          }
+        }),
+      ]
+      groups.push({
+        title: "Controller (required)",
+        options: controllerOptions,
+      })
     }
 
     // PEB (Power Extension Box)
-    if (metadata?.peb) {
-      try {
-        const pebArray = JSON.parse(metadata.peb)
-        if (Array.isArray(pebArray) && pebArray.length > 0) {
-          const pebOptions = [
-            { id: "none", label: "No box", available: true },
-            ...pebArray.map((peb: string) => ({
-              id: toKebabCase(peb),
-              label: peb,
-              available: !!accessoryProducts[toKebabCase(peb)],
-            })),
-          ]
-          groups.push({
-            title: "Power Extension Box (required)",
-            options: pebOptions,
-          })
-        }
-      } catch (e) {
-        console.error("Failed to parse PEB metadata:", e)
-      }
+    if (metadata?.peb && Array.isArray(metadata.peb) && metadata.peb.length > 0) {
+      const pebOptions = [
+        { id: "none", label: "No box", available: true },
+        ...metadata.peb.map((pebId: string) => {
+          const pebProduct = accessoryProducts[pebId]
+          return {
+            id: pebId,
+            label: pebProduct?.title || "Unknown PEB",
+            available: !!pebProduct,
+          }
+        }),
+      ]
+      groups.push({
+        title: "Power Extension Box (required)",
+        options: pebOptions,
+      })
     }
 
     // Rocks

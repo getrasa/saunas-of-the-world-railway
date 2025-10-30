@@ -4,14 +4,11 @@ import { HttpTypes } from "@medusajs/types"
  * Extended Medusa product type with heater-specific metadata
  */
 export interface HeaterProductMetadata {
-  peb?: string // JSON string array like '["PED 36"]'
-  size_to?: number
-  size_from?: number
-  rock_boxes?: number
-  controllers?: string // JSON string array like '["EmoStyle D", "Compact DC"]'
-  advantages?: string[] // Custom advantages array
-  specifications?: Record<string, string> // Technical specifications
-  includes?: string // What's included with the product
+  peb?: string[] // Array of product IDs for Power Extension Boxes
+  size_to?: number // Maximum sauna size (can be float like 4.5)
+  size_from?: number // Minimum sauna size (can be float like 3.5)
+  rock_boxes?: number // Number of rock boxes (integer)
+  controllers?: string[] // Array of product IDs for controllers
 }
 
 /**
