@@ -15,7 +15,7 @@ const TopbarDesktop: React.FC<TopbarDesktopProps> = ({ isStore = false }) => {
   const { topbarHeight, isTop } = useTopbarHeightRegulator();
 
   return (
-    <div className={`${isStore ? 'max-w-[1512px]' : 'container'} px-[24px] flex h-28 w-screen items-center justify-between transition-all duration-300`} style={{ height: topbarHeight }}>
+    <div className={`${isStore ? 'max-w-[1512px] px-[24px]' : 'container'} flex h-28 w-screen items-center justify-between transition-all duration-300`} style={{ height: topbarHeight }}>
       <Logo />
       <div
         className={`flex h-full flex-col justify-between pt-4 text-[#4e4d4d] transition-all duration-500`}
