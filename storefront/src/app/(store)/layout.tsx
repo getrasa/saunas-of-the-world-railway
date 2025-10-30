@@ -1,7 +1,7 @@
 import { getBaseURL } from "@lib/util/env"
 import { Metadata } from "next"
 import "styles/globals.css"
-import { Footer } from "~/components/ui/footer/footer";
+import { FooterWrapper } from "~/components/ui/footer/footer-wrapper";
 import { CartProvider } from "~/contexts/cart-context";
 import { CartDrawer } from "~/components/store/cart-drawer";
 
@@ -21,7 +21,7 @@ export default function StoreLayout({
           <main className="flex min-h-screen flex-col">
             {children}
           </main>
-          <Footer />
+          <FooterWrapper />
           <CartDrawer />
         </CartProvider>
       </body>

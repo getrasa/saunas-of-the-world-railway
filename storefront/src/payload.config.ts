@@ -11,6 +11,10 @@ import sharp from 'sharp'
 import { Users } from './collections/Users'
 import { Media } from './collections/Media'
 import { HeaterContent } from './collections/HeaterContent'
+import { IceBathContent } from './collections/IceBathContent'
+import { InfraredContent } from './collections/InfraredContent'
+import { ControlUnitContent } from './collections/ControlUnitContent'
+import { AccessoryContent } from './collections/AccessoryContent'
 import { Homepage } from './globals/Homepage'
 import { SaunasPage } from './globals/SaunasPage'
 import { BathsPage } from './globals/BathsPage'
@@ -24,6 +28,10 @@ import { ContactPage } from './globals/ContactPage'
 import { FooterGlobal } from './globals/FooterGlobal'
 import { StoreRangePage } from './globals/StoreRangePage'
 import { HeaterListPage } from './globals/HeaterListPage'
+import { IceBathListPage } from './globals/IceBathListPage'
+import { InfraredListPage } from './globals/InfraredListPage'
+import { ControlUnitListPage } from './globals/ControlUnitListPage'
+import { AccessoryListPage } from './globals/AccessoryListPage'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -35,13 +43,13 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Media, HeaterContent],
+  collections: [Users, Media, HeaterContent, IceBathContent, InfraredContent, ControlUnitContent, AccessoryContent],
   globals: [
-    Homepage, 
-    SaunasPage, 
-    BathsPage, 
-    InfraredPage, 
-    EquipmentPage, 
+    Homepage,
+    SaunasPage,
+    BathsPage,
+    InfraredPage,
+    EquipmentPage,
     MaterialsPage,
     ServicesPage,
     GalleryPage,
@@ -50,6 +58,10 @@ export default buildConfig({
     FooterGlobal,
     StoreRangePage,
     HeaterListPage,
+    IceBathListPage,
+    InfraredListPage,
+    ControlUnitListPage,
+    AccessoryListPage,
   ],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',

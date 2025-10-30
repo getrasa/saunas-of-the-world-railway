@@ -381,7 +381,7 @@ export function HeaterDetailScene({
         stockStatus: status,
         image: p.thumbnail || "",
         variantId: variant?.id,
-        metadata: {
+        options: {
           "Type Available": getOptionValue("type"),
           "Sauna Size Up To": getOptionValue("sauna size"),
           Power: getOptionValue("power"),

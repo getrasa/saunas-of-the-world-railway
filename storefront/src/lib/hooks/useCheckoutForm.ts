@@ -19,11 +19,11 @@ const defaultValues: CheckoutFormData = {
     province: "",
     phone: "",
   },
+  shippingMethodId: "",
   email: "",
   phone: "",
   billingAddressSameAsShipping: true,
   billingAddress: undefined,
-  safeToLeave: false,
   paymentMethod: "credit_card",
 }
 
