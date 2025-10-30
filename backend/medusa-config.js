@@ -41,7 +41,17 @@ const medusaConfig = {
     },
     build: {
       rollupOptions: {
-        external: ["@medusajs/dashboard", "@medusajs/ui"]
+        external: [
+          "@medusajs/dashboard",
+          "@medusajs/ui",
+          "@medusajs/icons",
+          "@medusajs/types",
+          "@medusajs/js-sdk",
+          "@medusajs/admin-sdk",
+          "@medusajs/framework/types",
+          "@tanstack/react-query",
+          "react"
+        ]
       }
     }
   },
