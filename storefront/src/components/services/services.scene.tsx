@@ -10,7 +10,7 @@ export const ServicesScene = async () => {
   return (
     <>
       {hero && (
-        <ProductHero title={hero.title} imagePath={hero.imageUrl} />
+        <ProductHero title={hero.title} imagePath={hero.imageUrl} brightness={hero.brightness} />
       )}
       <div className="h-[50px]" />
       {products.map((product, index) => (

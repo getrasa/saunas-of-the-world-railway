@@ -13,6 +13,7 @@ export const MaterialsScene = async () => {
         <ProductHero
           title={hero.title}
           imagePath={hero.imageUrl}
+          brightness={hero.brightness}
         />
       )}
       <div className="h-[50px]" />

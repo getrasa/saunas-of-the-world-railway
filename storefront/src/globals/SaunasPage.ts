@@ -29,6 +29,17 @@ export const SaunasPage: GlobalConfig = {
           label: 'Hero Image',
           required: true,
         },
+        {
+          name: 'brightness',
+          type: 'number',
+          label: 'Image Brightness',
+          defaultValue: 70,
+          min: 0,
+          max: 100,
+          admin: {
+            description: 'Image brightness filter (0-100, where 100 is original brightness)',
+          },
+        },
       ],
     },
     {

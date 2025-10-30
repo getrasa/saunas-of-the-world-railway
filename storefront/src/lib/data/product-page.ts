@@ -11,6 +11,7 @@ function parseBoldText(text: string): string {
 export interface HeroData {
   title: string
   imageUrl: string
+  brightness: number
 }
 
 export interface ProductData {
@@ -45,6 +46,7 @@ interface MediaType {
 interface HeroRaw {
   title: string
   image: string | MediaType
+  brightness?: number
 }
 
 interface ProductRaw {
@@ -93,11 +95,12 @@ export async function getProductPageData(slug: string): Promise<ProductPageData>
     let hero: HeroData | null = null
     if (page?.hero) {
       const image = typeof page.hero.image === 'object' ? page.hero.image : null
-      
+
       if (image?.url) {
         hero = {
           title: page.hero.title || '',
           imageUrl: image.url,
+          brightness: page.hero.brightness ?? 70,
         }
       }
     }

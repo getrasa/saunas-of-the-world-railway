@@ -11,9 +11,10 @@ export const SaunasScene = async () => {
   return (
     <>
       {hero && (
-        <ProductHero 
-          title={hero.title} 
+        <ProductHero
+          title={hero.title}
           imagePath={hero.imageUrl}
+          brightness={hero.brightness}
         />
       )}
       
