@@ -23,6 +23,7 @@ export default async function AccessoriesPage() {
   const { products } = await sdk.store.product.list(
     {
       region_id: region.id,
+      category_id: ["pcat_01K5XNXYYB0GCQ1HTZJWBNP8D3"],
       // category_id: ["YOUR_ACCESSORY_CATEGORY_ID"], // Add your accessory category ID here
       fields: "*variants.calculated_price,+variants.inventory_quantity,+metadata,+options.*",
       limit: 30,

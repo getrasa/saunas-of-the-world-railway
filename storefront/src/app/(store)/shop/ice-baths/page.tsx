@@ -24,6 +24,7 @@ export default async function IceBathsPage() {
     {
       region_id: region.id,
       // category_id: ["YOUR_ICE_BATH_CATEGORY_ID"], // Add your ice bath category ID here
+      category_id: ["pcat_01K4VWXP6NBB0KSCCWT9EZ3E5S"],
       fields: "*variants.calculated_price,+variants.inventory_quantity,+metadata,+options.*",
       limit: 30,
     },

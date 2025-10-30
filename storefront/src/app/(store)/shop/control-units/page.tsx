@@ -24,6 +24,7 @@ export default async function ControlUnitsPage() {
     {
       region_id: region.id,
       // category_id: ["YOUR_CONTROL_UNIT_CATEGORY_ID"], // Add your control unit category ID here
+      category_id: ["pcat_01K5XNZRCBBJMT3MWTHQ9QFZ9N"],
       fields: "*variants.calculated_price,+variants.inventory_quantity,+metadata,+options.*",
       limit: 30,
     },

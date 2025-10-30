@@ -24,6 +24,7 @@ export default async function InfraredPage() {
     {
       region_id: region.id,
       // category_id: ["YOUR_INFRARED_CATEGORY_ID"], // Add your infrared category ID here
+      category_id: ["pcat_01K8T4V34NGJZHT5DJR6JG01HM"],
       fields: "*variants.calculated_price,+variants.inventory_quantity,+metadata,+options.*",
       limit: 30,
     },
