@@ -2,6 +2,7 @@ import { sdk } from "~/lib/config"
 import { HeaterDetailScene } from "~/components/store/heaters/details/heater-detail.scene"
 import { getRegion } from "@lib/data/regions"
 import { getProductsByHandles } from "@lib/data/products"
+import { getHeaterContent } from "@lib/data/heater-content"
 import type { HeaterProduct, HeaterProductMetadata } from "~/types/medusa-product"
 import { toKebabCase } from "~/lib/utils"
 
@@ -125,12 +126,16 @@ export default async function ProductDetailsPage(props: { params: Promise<{ id: 
     }
   })
 
+  // Fetch heater content from Payload CMS
+  const heaterContent = await getHeaterContent(product.id)
+
   return (
     <HeaterDetailScene
       product={product}
       relatedProducts={relatedProducts}
       countryCode={countryCode}
       accessoryProducts={accessoryProducts}
+      heaterContent={heaterContent}
     />
   )
 }

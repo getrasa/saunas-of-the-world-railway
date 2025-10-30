@@ -10,6 +10,7 @@ import sharp from 'sharp'
 
 import { Users } from './collections/Users'
 import { Media } from './collections/Media'
+import { HeaterContent } from './collections/HeaterContent'
 import { Homepage } from './globals/Homepage'
 import { SaunasPage } from './globals/SaunasPage'
 import { BathsPage } from './globals/BathsPage'
@@ -34,7 +35,7 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Media],
+  collections: [Users, Media, HeaterContent],
   globals: [
     Homepage, 
     SaunasPage, 

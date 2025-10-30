@@ -15,6 +15,7 @@ import { HeaterDetailInfo } from "./heater-detail-info"
 import { useCart } from "~/contexts/cart-context"
 import { addMultipleToCart } from "@lib/data/cart"
 import type { HeaterProductMetadata } from "~/types/medusa-product"
+import type { HeaterContentData } from "@lib/data/heater-content"
 import { toKebabCase } from "~/lib/utils"
 
 interface AccessoryProduct {
@@ -29,6 +30,7 @@ interface HeaterDetailSceneProps {
   relatedProducts: HttpTypes.StoreProduct[]
   countryCode: string
   accessoryProducts: Record<string, AccessoryProduct>
+  heaterContent: HeaterContentData | null
 }
 
 // Helper to convert variant options to a keymap
@@ -58,6 +60,7 @@ export function HeaterDetailScene({
   relatedProducts,
   countryCode,
   accessoryProducts,
+  heaterContent,
 }: HeaterDetailSceneProps) {
   const [quantity, setQuantity] = useState(1)
   const [options, setOptions] = useState<Record<string, string>>({})
@@ -320,23 +323,34 @@ export function HeaterDetailScene({
     }
   }
 
-  // Extract advantages from metadata
+  // Extract advantages - prioritize Payload content, fallback to metadata, then defaults
   const advantages = useMemo(() => {
+    if (heaterContent?.advantages && heaterContent.advantages.length > 0) {
+      return heaterContent.advantages
+    }
     const meta = product.metadata as any
     if (meta?.advantages && Array.isArray(meta.advantages)) {
       return meta.advantages as string[]
     }
     return DEFAULT_ADVANTAGES
-  }, [product.metadata])
+  }, [heaterContent, product.metadata])
 
-  // Extract specifications from metadata
+  // Extract specifications - prioritize Payload content, fallback to metadata
   const specifications = useMemo(() => {
+    if (heaterContent?.specifications && Object.keys(heaterContent.specifications).length > 0) {
+      return heaterContent.specifications
+    }
     const meta = product.metadata as any
     if (meta?.specifications && typeof meta.specifications === "object") {
       return meta.specifications as Record<string, string>
     }
     return {}
-  }, [product.metadata])
+  }, [heaterContent, product.metadata])
+
+  // Extract downloads from Payload content
+  const downloads = useMemo(() => {
+    return heaterContent?.downloads || []
+  }, [heaterContent])
 
   // Breadcrumb items
   const breadcrumbItems = [
@@ -401,6 +415,7 @@ export function HeaterDetailScene({
             <HeaterDetailAccordion
               advantages={advantages}
               specifications={specifications}
+              downloads={downloads}
             />
           </ProductDetailLayout.LeftColumn>
 
