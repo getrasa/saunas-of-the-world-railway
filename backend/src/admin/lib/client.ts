@@ -4,5 +4,6 @@ export const sdk = new Medusa({
   baseUrl: "/",
   auth: {
     type: "session",
+    fetchCredentials: "include",
   },
 })
