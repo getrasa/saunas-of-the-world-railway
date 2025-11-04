@@ -5,7 +5,8 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { HttpTypes } from "@medusajs/types"
 import { ProductMultiSelect } from "../components/product-multi-select"
-import { useUpdateProductMetadata } from "../hooks/use-update-product-metadata"
+import { sdk } from "../lib/client"
+import { useState, useEffect } from "react"
 import { 
   DetailWidgetProps, 
   AdminProduct,
@@ -26,6 +27,10 @@ const HeaterMetadataSchema = z.object({
 })
 
 type HeaterMetadata = z.infer<typeof HeaterMetadataSchema>
+
+// Global cache to store saved metadata across component remounts
+// This persists the saved data even when navigating away and back
+const savedMetadataCache = new Map<string, HeaterMetadata>()
 
 // Helper to safely parse metadata arrays (handles both old JSON string format and new array format)
 const parseMetadataArray = (value: any): string[] => {
@@ -61,31 +66,60 @@ const HeaterWidget = ({ data: product }: HeaterWidgetProps) => {
     return null
   }
 
-  // Initialize form with existing metadata
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    watch,
-    formState: { errors },
-  } = useForm({
-    resolver: zodResolver(HeaterMetadataSchema),
-    defaultValues: {
+  // Get initial metadata: prefer cached saved data over stale product.metadata
+  const getInitialMetadata = (): HeaterMetadata => {
+    const cached = savedMetadataCache.get(product.id)
+    if (cached) {
+      return cached
+    }
+    return {
       peb: parseMetadataArray(product.metadata?.peb),
       size_from: (product.metadata?.size_from as number) || undefined,
       size_to: (product.metadata?.size_to as number) || undefined,
       rock_boxes: (product.metadata?.rock_boxes as number) || undefined,
       controllers: parseMetadataArray(product.metadata?.controllers),
-    },
+    }
+  }
+
+  // Initialize form with metadata (cached if available, otherwise from product)
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(HeaterMetadataSchema),
+    defaultValues: getInitialMetadata(),
   })
 
-  const { mutateAsync, isPending } = useUpdateProductMetadata(product.id)
+  const [isLoading, setIsLoading] = useState(false)
+
+  // Reset form when product ID changes (always prefer cached data if available)
+  useEffect(() => {
+    const cached = savedMetadataCache.get(product.id)
+    if (cached) {
+      // Use cached data (more recent than stale product.metadata)
+      reset(cached)
+    } else {
+      // No cached data, use product.metadata
+      reset({
+        peb: parseMetadataArray(product.metadata?.peb),
+        size_from: (product.metadata?.size_from as number) || undefined,
+        size_to: (product.metadata?.size_to as number) || undefined,
+        rock_boxes: (product.metadata?.rock_boxes as number) || undefined,
+        controllers: parseMetadataArray(product.metadata?.controllers),
+      })
+    }
+  }, [product.id, reset]) // Only depend on product.id, not metadata
 
   // Watch multiselect values
   const pebValue = watch("peb") || []
   const controllersValue = watch("controllers") || []
 
   const onSubmit = async (values: HeaterMetadata) => {
+    setIsLoading(true)
     try {
       // Filter out old heater-specific metadata to avoid conflicts with old format
       const nonHeaterMetadata = Object.fromEntries(
@@ -95,23 +129,37 @@ const HeaterWidget = ({ data: product }: HeaterWidgetProps) => {
       )
 
       // Merge non-heater metadata with new heater data
-      await mutateAsync({
-        ...nonHeaterMetadata,
+      await sdk.admin.product.update(product.id, {
+        metadata: {
+          ...nonHeaterMetadata,
+          peb: values.peb || [],
+          size_from: values.size_from,
+          size_to: values.size_to,
+          rock_boxes: values.rock_boxes,
+          controllers: values.controllers || [],
+        },
+      })
+
+      // Save to global cache so it persists across component remounts
+      const savedMetadata: HeaterMetadata = {
         peb: values.peb || [],
         size_from: values.size_from,
         size_to: values.size_to,
         rock_boxes: values.rock_boxes,
         controllers: values.controllers || [],
-      })
+      }
+      savedMetadataCache.set(product.id, savedMetadata)
 
       toast.success("Success", {
-        description: "Heater information updated successfully",
+        description: "Heater information updated successfully.",
       })
     } catch (error) {
       toast.error("Error", {
         description: "Failed to update heater information",
       })
       console.error("Failed to update product metadata:", error)
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -192,7 +240,7 @@ const HeaterWidget = ({ data: product }: HeaterWidgetProps) => {
         />
 
         {/* Submit Button */}
-        <Button type="submit" isLoading={isPending} className="w-fit">
+        <Button type="submit" isLoading={isLoading} className="w-fit">
           Save Heater Information
         </Button>
       </form>

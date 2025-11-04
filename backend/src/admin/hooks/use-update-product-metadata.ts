@@ -11,11 +11,16 @@ export const useUpdateProductMetadata = (productId: string) => {
     onSuccess: () => {
       // Invalidate product queries to refetch updated data
       queryClient.invalidateQueries({
-        queryKey: ["products", productId]
+        queryKey: ["products", productId],
       })
       queryClient.invalidateQueries({
-        queryKey: ["product", productId]
+        queryKey: ["product", productId],
+      })
+      // Also invalidate general product list queries
+      queryClient.invalidateQueries({
+        queryKey: ["products"],
       })
     },
   })
 }
+
